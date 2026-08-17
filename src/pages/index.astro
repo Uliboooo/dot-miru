@@ -62,9 +62,35 @@ desc = "My Neovim configuration."</code></pre>
         </div>
       </section>
       <section class="directory" aria-labelledby="directory-title">
-        <div class="section-heading"><div><p class="eyebrow">{isJapanese ? "ディレクトリ" : "directory"}</p><h2 id="directory-title">{isJapanese ? "掲載プロフィール" : "Published profiles"}</h2></div><span>{registry.length} {isJapanese ? "プロフィール" : "profiles"}</span></div>
+        <div class="section-heading"><div><p class="eyebrow">{isJapanese ? "ディレクトリ" : "directory"}</p><h2 id="directory-title">{isJapanese ? "掲載プロフィール" : "Published profiles"}</h2></div><div class="directory-actions"><span>{registry.length} {isJapanese ? "プロフィール" : "profiles"}</span><a class="primary-link" href="https://github.com/Uliboooo/dot-miru/edit/main/src/data/profiles.toml" target="_blank" rel="noreferrer">{isJapanese ? "PR で登録する" : "Register with a PR"} <span aria-hidden="true">↗</span></a></div></div>
         {registry.length ? <div class="profile-grid">{directoryProfiles.map(({ entry, profile }) => <ProfileCard slug={entry.slug} profile={profile} locale={locale} />)}</div> : <p class="empty">{isJapanese ? <><a href="https://github.com/Uliboooo/dot-miru/edit/main/src/data/profiles.toml" target="_blank" rel="noreferrer">最初のプロフィールを PR で追加する ↗</a></> : <>No profiles are registered yet. <a href="https://github.com/Uliboooo/dot-miru/edit/main/src/data/profiles.toml" target="_blank" rel="noreferrer">Add the first one with a pull request ↗</a></>}</p>}
       </section>
     </>
   )}
 </BaseLayout>
+
+<style>
+  .directory-actions {
+    align-items: center;
+    display: flex;
+    gap: 1rem;
+  }
+
+  .directory-actions > span {
+    color: var(--muted);
+    font-size: .9rem;
+  }
+
+  .directory-actions .primary-link {
+    font-size: .9rem;
+    padding: .55rem .75rem;
+  }
+
+  @media (max-width: 620px) {
+    .directory-actions {
+      align-items: start;
+      flex-direction: column;
+      gap: .5rem;
+    }
+  }
+</style>
