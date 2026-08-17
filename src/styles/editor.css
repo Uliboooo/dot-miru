@@ -41,3 +41,9 @@
   font: inherit;
   padding: .68rem .5rem;
 }
+
+.editor-publish-note {
+  color: var(--muted);
+  font-size: .9rem;
+  margin: .85rem 0 0;
+}
