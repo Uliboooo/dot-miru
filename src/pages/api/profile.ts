@@ -7,7 +7,7 @@ export const GET: APIRoute = async ({ url }) => {
   const source = url.searchParams.get("source");
   if (!source) return Response.json({ error: "The source query parameter is required." }, { status: 400 });
   try {
-    return Response.json(await loadProfile(source), { headers: { "Cache-Control": "public, max-age=300" } });
+    return Response.json(await loadProfile(source), { headers: { "Cache-Control": "public, max-age=60" } });
   } catch (cause) {
     const error = cause instanceof ProfileError ? cause : new ProfileError("fetch_failed", "Unable to load profile.");
     const status = error.code === "invalid_source" ? 400 : error.code === "fetch_failed" ? 502 : 422;

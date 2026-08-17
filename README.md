@@ -59,6 +59,8 @@ https://dot-miru.uliboooo.workers.dev/?source=https%3A%2F%2Fraw.githubuserconten
 
 Gist's **Raw** button may copy a revision-pinned URL. That URL is accepted and automatically normalized to the stable, latest-file form when dot-miru loads it or prepares a directory entry.
 
+Profile TOML changes appear within about one minute. If you replace an image without changing its URL, use a version query such as `?v=2` to bypass the image host and browser caches.
+
 ## Register a profile in the directory
 
 To have a profile listed at `/u/<slug>` and on the top-page directory, open a pull request adding an entry to [`src/data/profiles.toml`](https://github.com/Uliboooo/dot-miru/edit/main/src/data/profiles.toml):

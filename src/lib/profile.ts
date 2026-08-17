@@ -2,7 +2,7 @@ import { parse } from "smol-toml";
 import { z } from "zod";
 
 const MAX_SOURCE_BYTES = 1_000_000;
-const CACHE_TTL_MS = 5 * 60 * 1000;
+const CACHE_TTL_MS = 60 * 1000;
 const allowedHosts = new Set(["raw.githubusercontent.com", "gist.githubusercontent.com"]);
 
 export type Dotfile = {
@@ -229,7 +229,7 @@ export async function loadProfile(source: string, fetcher: typeof fetch = fetch)
 
   if (cache) {
     const cached: CachedProfile = { cachedAt: Date.now(), profile };
-    await cache.put(key, new Response(JSON.stringify(cached), { headers: { "Cache-Control": "max-age=300" } }));
+    await cache.put(key, new Response(JSON.stringify(cached), { headers: { "Cache-Control": "max-age=60" } }));
   }
   return profile;
 }
