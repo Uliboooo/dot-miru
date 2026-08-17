@@ -85,9 +85,4 @@ This command checks, builds, and deploys the generated Worker. The first deploym
 
 ## Continuous deployment
 
-Pushes to `main` deploy automatically through GitHub Actions. Add these repository secrets before the first push:
-
-- `CLOUDFLARE_API_TOKEN`: an API token scoped to **Edit Cloudflare Workers** for this account.
-- `CLOUDFLARE_ACCOUNT_ID`: the Cloudflare account ID that owns `dot-miru`.
-
-The workflow is also available from the Actions tab through **Run workflow**.
+Connect this repository in the Cloudflare Workers dashboard using Git integration. Once `main` is selected as the production branch, Cloudflare deploys each push automatically.
