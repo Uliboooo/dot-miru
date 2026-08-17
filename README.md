@@ -31,6 +31,7 @@ shell = "fish"
 wm = "niri"
 terminal = "ghostty"
 fonts = ["Iosevka", "Noto Sans JP"]
+cpu = "AMD Ryzen 7 7840U"
 gpu = "AMD Radeon 780M"
 theme = "Catppuccin Mocha"
 ram_gb = 32
@@ -45,7 +46,7 @@ desc = "Lua configuration for Neovim."
 images = [{ url = "https://example.com/nvim.webp", alt = "Neovim configuration" }]
 ```
 
-Only HTTPS raw URLs from `raw.githubusercontent.com` and `gist.githubusercontent.com` are accepted. A profile needs `name` and may provide `repository` (recommended), `summary`, `[sns]`, `[info]`, and `[dotfiles.<id>]` sections. `info` supports `os`, `kernel`, `shell`, `wm`, `de`, `cursor_theme`, `terminal`, `fonts`, `gpu`, `theme`, `ram_gb`, `ssd_tb`, `hdd_tb`, and `logo`. Use `[info.extra]` for up to 10 additional short string values; keys may contain only letters, numbers, `_`, and `-`.
+Only HTTPS raw URLs from `raw.githubusercontent.com` and `gist.githubusercontent.com` are accepted. A profile needs `name` and may provide `repository` (recommended), `summary`, `[sns]`, `[info]`, and `[dotfiles.<id>]` sections. `info` supports `os`, `kernel`, `shell`, `wm`, `de`, `cursor_theme`, `terminal`, `fonts`, `cpu`, `gpu`, `theme`, `ram_gb`, `ssd_tb`, `hdd_tb`, and `logo`. Use `[info.extra]` for up to 10 additional short string values; keys may contain only letters, numbers, `_`, and `-`.
 
 In `[sns]`, use an account ID rather than a full URL. For example, `github = "@octocat"` generates a link to `github.com/octocat`; `x = "@dot_miru"` generates a link to `x.com/dot_miru`.
 

@@ -26,6 +26,7 @@ export type Profile = {
     cursorTheme?: string;
     terminal?: string;
     fonts?: string[];
+    cpu?: string;
     gpu?: string;
     theme?: string;
     extra?: Record<string, string>;
@@ -89,6 +90,7 @@ const profileSchema = z.object({
       cursor_theme: z.string().trim().min(1).max(100).optional(),
       terminal: z.string().trim().min(1).max(100).optional(),
       fonts: z.array(z.string().trim().min(1).max(100)).max(20).optional(),
+      cpu: z.string().trim().min(1).max(100).optional(),
       gpu: z.string().trim().min(1).max(100).optional(),
       theme: z.string().trim().min(1).max(100).optional(),
       extra: z
@@ -154,6 +156,7 @@ export function parseProfile(toml: string): Profile {
       cursorTheme: info.cursor_theme,
       terminal: info.terminal,
       fonts: info.fonts,
+      cpu: info.cpu,
       gpu: info.gpu,
       theme: info.theme,
       extra: info.extra,

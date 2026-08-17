@@ -7,7 +7,7 @@ const isJapanese = localeFromUrl(Astro.url) === "ja";
 const infoFields = [
   ["os", "OS"], ["kernel", isJapanese ? "カーネル" : "Kernel"], ["shell", isJapanese ? "シェル" : "Shell"],
   ["wm", isJapanese ? "ウィンドウマネージャー" : "Window manager"], ["de", isJapanese ? "デスクトップ環境" : "Desktop environment"], ["cursor_theme", isJapanese ? "カーソルテーマ" : "Cursor theme"],
-  ["terminal", isJapanese ? "ターミナル" : "Terminal"], ["gpu", "GPU"], ["theme", isJapanese ? "テーマ" : "Theme"], ["logo", isJapanese ? "ロゴ画像 URL" : "Logo image URL"],
+  ["terminal", isJapanese ? "ターミナル" : "Terminal"], ["cpu", "CPU"], ["gpu", "GPU"], ["theme", isJapanese ? "テーマ" : "Theme"], ["logo", isJapanese ? "ロゴ画像 URL" : "Logo image URL"],
 ];
 ---
 
@@ -178,7 +178,7 @@ const infoFields = [
     setValue("github", sns.github);
     setValue("x", sns.x);
     const info = object(profile.info);
-    ["os", "kernel", "shell", "wm", "de", "cursor_theme", "terminal", "gpu", "theme", "logo"].forEach((name) => setValue(name, info[name]));
+    ["os", "kernel", "shell", "wm", "de", "cursor_theme", "terminal", "cpu", "gpu", "theme", "logo"].forEach((name) => setValue(name, info[name]));
     setValue("fonts", textList(info.fonts).join(", "));
     setValue("ram_gb", numberText(info.ram_gb));
     for (const name of ["ssd_tb", "hdd_tb"]) {
@@ -265,7 +265,7 @@ const infoFields = [
     const github = value("github"), x = value("x");
     if (github || x) { lines.push("", "[sns]"); if (github) lines.push(`github = ${quote(github)}`); if (x) lines.push(`x = ${quote(x)}`); }
     const infoLines: string[] = [];
-    ["os", "kernel", "shell", "wm", "de", "cursor_theme", "terminal", "gpu", "theme"].forEach((name) => optional(name, infoLines));
+    ["os", "kernel", "shell", "wm", "de", "cursor_theme", "terminal", "cpu", "gpu", "theme"].forEach((name) => optional(name, infoLines));
     const logo = value("logo");
     if (logo && !isHttpsUrl(logo)) return fail("Logo image must be an HTTPS URL.", form.elements.namedItem("logo") as HTMLInputElement);
     if (logo) infoLines.push(`logo = ${quote(canonicalizeGistUrl(logo))}`);

@@ -18,6 +18,7 @@ de = "none"
 cursor_theme = "Bibata Modern Ice"
 terminal = "ghostty"
 fonts = ["Iosevka", "Noto Sans JP"]
+cpu = "AMD Ryzen 7 7840U"
 gpu = "AMD Radeon 780M"
 theme = "Catppuccin Mocha"
 ram_gb = 32
@@ -69,6 +70,7 @@ describe("profile TOML", () => {
     expect(profile.info?.ramGb).toBe(32);
     expect(profile.info?.cursorTheme).toBe("Bibata Modern Ice");
     expect(profile.info?.fonts).toEqual(["Iosevka", "Noto Sans JP"]);
+    expect(profile.info?.cpu).toBe("AMD Ryzen 7 7840U");
     expect(profile.info?.gpu).toBe("AMD Radeon 780M");
     expect(profile.info?.extra).toEqual({ display: "2560×1600", keyboard: "US ANSI" });
     expect(profile.info?.ssdTb).toEqual([0.5, 1]);

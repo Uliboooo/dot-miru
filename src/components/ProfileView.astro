@@ -44,6 +44,7 @@ const socialLinks = [
         {profile.info.cursorTheme && <div><dt>{isJapanese ? "カーソルテーマ" : "Cursor theme"}</dt><dd>{profile.info.cursorTheme}</dd></div>}
         {profile.info.terminal && <div><dt>Terminal</dt><dd>{profile.info.terminal}</dd></div>}
         {profile.info.fonts?.length && <div><dt>Fonts</dt><dd>{profile.info.fonts.join(", ")}</dd></div>}
+        {profile.info.cpu && <div><dt>CPU</dt><dd>{profile.info.cpu}</dd></div>}
         {profile.info.gpu && <div><dt>GPU</dt><dd>{profile.info.gpu}</dd></div>}
         {profile.info.theme && <div><dt>Theme</dt><dd>{profile.info.theme}</dd></div>}
         {profile.info.ramGb && <div><dt>{isJapanese ? "メモリ" : "Memory"}</dt><dd>{profile.info.ramGb} GB</dd></div>}
