@@ -62,6 +62,30 @@ describe("source validation", () => {
     expect(isAllowedSource("http://raw.githubusercontent.com/a/b/main/dot-miru.toml")).toBe(false);
     expect(isAllowedSource("https://raw.githubusercontent.com/a/b/main/readme.md")).toBe(false);
   });
+
+  it("uses an expired profile for up to three days when its source cannot be reached", async () => {
+    const profile = parseProfile('name = "Cached profile"');
+    let stored = new Response(JSON.stringify({
+      cachedAt: Date.now() - 181_000,
+      profile,
+    }));
+    const cache = {
+      match: async () => stored.clone(),
+      put: async (_request: Request, response: Response) => { stored = response.clone(); },
+    } as unknown as Cache;
+    const originalCaches = Object.getOwnPropertyDescriptor(globalThis, "caches");
+    Object.defineProperty(globalThis, "caches", { configurable: true, value: { default: cache } });
+
+    try {
+      await expect(loadProfile(
+        "https://gist.githubusercontent.com/a/id/raw/dot-miru.toml",
+        async () => new Response(null, { status: 503 }),
+      )).resolves.toMatchObject({ name: "Cached profile" });
+    } finally {
+      if (originalCaches) Object.defineProperty(globalThis, "caches", originalCaches);
+      else Reflect.deleteProperty(globalThis, "caches");
+    }
+  });
 });
 
 describe("profile TOML", () => {

@@ -2,7 +2,8 @@ import { parse } from "smol-toml";
 import { z } from "zod";
 
 const MAX_SOURCE_BYTES = 1_000_000;
-const CACHE_TTL_MS = 60 * 1000;
+const FRESH_CACHE_TTL_MS = 180 * 1000;
+const STALE_CACHE_TTL_MS = 3 * 24 * 60 * 60 * 1000;
 const allowedHosts = new Set(["raw.githubusercontent.com", "gist.githubusercontent.com"]);
 
 export type Dotfile = {
@@ -212,11 +213,14 @@ export async function loadProfile(source: string, fetcher: typeof fetch = fetch)
 
   const cache = (globalThis as typeof globalThis & { caches?: CacheStorage & { default?: Cache } }).caches?.default;
   const key = cacheKey(canonicalSource);
+  let staleProfile: Profile | undefined;
   if (cache) {
     const hit = await cache.match(key);
     if (hit) {
       const cached = (await hit.json()) as CachedProfile;
-      if (Date.now() - cached.cachedAt < CACHE_TTL_MS) return cached.profile;
+      const age = Date.now() - cached.cachedAt;
+      if (age < FRESH_CACHE_TTL_MS) return cached.profile;
+      if (age < STALE_CACHE_TTL_MS) staleProfile = cached.profile;
     }
   }
 
@@ -224,25 +228,29 @@ export async function loadProfile(source: string, fetcher: typeof fetch = fetch)
   try {
     response = await fetchTomlSource(canonicalSource, fetcher);
   } catch (error) {
+    if (staleProfile) return staleProfile;
     if (error instanceof ProfileError) throw error;
     throw new ProfileError("fetch_failed", "The TOML source could not be reached.");
   }
   if (!response.ok) {
+    if (staleProfile) return staleProfile;
     throw new ProfileError("fetch_failed", `The TOML source returned HTTP ${response.status}.`);
   }
   const length = Number(response.headers.get("content-length"));
   if (Number.isFinite(length) && length > MAX_SOURCE_BYTES) {
+    if (staleProfile) return staleProfile;
     throw new ProfileError("fetch_failed", "The TOML source is too large.");
   }
   const body = await response.arrayBuffer();
   if (body.byteLength > MAX_SOURCE_BYTES) {
+    if (staleProfile) return staleProfile;
     throw new ProfileError("fetch_failed", "The TOML source is too large.");
   }
   const profile = parseProfile(new TextDecoder().decode(body));
 
   if (cache) {
     const cached: CachedProfile = { cachedAt: Date.now(), profile };
-    await cache.put(key, new Response(JSON.stringify(cached), { headers: { "Cache-Control": "max-age=60" } }));
+    await cache.put(key, new Response(JSON.stringify(cached), { headers: { "Cache-Control": "max-age=259200" } }));
   }
   return profile;
 }
