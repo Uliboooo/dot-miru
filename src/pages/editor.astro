@@ -1,40 +1,48 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
+import { localeFromUrl } from "../lib/i18n";
+import "../styles/editor.css";
 
+const isJapanese = localeFromUrl(Astro.url) === "ja";
 const infoFields = [
-  ["os", "OS"], ["host", "Host"], ["kernel", "Kernel"], ["shell", "Shell"],
-  ["wm", "Window manager"], ["de", "Desktop environment"], ["cursor_theme", "Cursor theme"],
-  ["terminal", "Terminal"], ["gpu", "GPU"], ["theme", "Theme"], ["logo", "Logo image URL"],
+  ["os", "OS"], ["kernel", isJapanese ? "カーネル" : "Kernel"], ["shell", isJapanese ? "シェル" : "Shell"],
+  ["wm", isJapanese ? "ウィンドウマネージャー" : "Window manager"], ["de", isJapanese ? "デスクトップ環境" : "Desktop environment"], ["cursor_theme", isJapanese ? "カーソルテーマ" : "Cursor theme"],
+  ["terminal", isJapanese ? "ターミナル" : "Terminal"], ["gpu", "GPU"], ["theme", isJapanese ? "テーマ" : "Theme"], ["logo", isJapanese ? "ロゴ画像 URL" : "Logo image URL"],
 ];
 ---
 
 <BaseLayout title="TOML editor — dot-miru">
   <section class="editor-intro">
     <p class="eyebrow">TOML editor</p>
-    <h1>Make your dotfiles profile.</h1>
-    <p>Fill in what you want to publish, then download a ready-to-use <code>dot-miru.toml</code>. Images are linked by public HTTPS URL.</p>
+    <h1>{isJapanese ? "dotfiles プロフィールを作る。" : "Make your dotfiles profile."}</h1>
+    <p>{isJapanese ? <>公開したい項目を入力して、すぐに使える <code>dot-miru.toml</code> をダウンロードします。画像は公開 HTTPS URL で指定します。</> : <>Fill in what you want to publish, then download a ready-to-use <code>dot-miru.toml</code>. Images are linked by public HTTPS URL.</>}</p>
   </section>
 
   <form class="editor-form" id="toml-editor" novalidate>
+    <section class="editor-section editor-load">
+      <div class="editor-section-heading"><p class="eyebrow">{isJapanese ? "TOML を読み込む" : "load TOML"}</p><span>{isJapanese ? "現在のフォーム内容を置き換えます" : "Replace the current form contents"}</span></div>
+      <label class="file-input"><input id="toml-file" type="file" accept=".toml,text/plain,application/toml" /><span class="file-button">{isJapanese ? "ファイルを選択…" : "Browse…"}</span><span id="toml-file-name">{isJapanese ? <><code>dot-miru.toml</code> を選択</> : <>Choose a <code>dot-miru.toml</code> file</>}</span></label>
+    </section>
+
     <section class="editor-section">
-      <div class="editor-section-heading"><p class="eyebrow">profile</p><span>Required fields marked *</span></div>
+      <div class="editor-section-heading"><p class="eyebrow">{isJapanese ? "プロフィール" : "profile"}</p><span>{isJapanese ? "* は必須項目です" : "Required fields marked *"}</span></div>
       <div class="editor-grid">
-        <label>Display name *<input name="name" required maxlength="100" placeholder="Your name" /></label>
-        <label><span class="field-label">Repository URL <span class="field-hint">recommended</span></span><input name="repository" type="url" placeholder="https://github.com/you/dotfiles" /></label>
-        <label class="editor-wide">Summary<textarea name="summary" maxlength="2000" placeholder="A short introduction to your setup."></textarea></label>
-        <label><span class="field-label">GitHub ID <span class="field-hint">e.g. @octocat</span></span><input name="github" maxlength="100" placeholder="@octocat" /></label>
-        <label><span class="field-label">X ID <span class="field-hint">e.g. @dot_miru</span></span><input name="x" maxlength="100" placeholder="@dot_miru" /></label>
+        <label><span class="field-label">{isJapanese ? "表示名" : "Display name"} <code>name</code> *</span><input name="name" required maxlength="100" placeholder={isJapanese ? "あなたの名前" : "Your name"} /></label>
+        <label><span class="field-label">{isJapanese ? "リポジトリ URL" : "Repository URL"} <code>repository</code> <span class="field-hint">{isJapanese ? "推奨" : "recommended"}</span></span><input name="repository" type="url" placeholder="https://github.com/you/dotfiles" /></label>
+        <label class="editor-wide"><span class="field-label">{isJapanese ? "紹介" : "Summary"} <code>summary</code></span><textarea name="summary" maxlength="2000" placeholder={isJapanese ? "セットアップの短い紹介。" : "A short introduction to your setup."}></textarea></label>
+        <label><span class="field-label">GitHub ID <code>sns.github</code> <span class="field-hint">e.g. @octocat</span></span><input name="github" maxlength="100" placeholder="@octocat" /></label>
+        <label><span class="field-label">X ID <code>sns.x</code> <span class="field-hint">e.g. @dot_miru</span></span><input name="x" maxlength="100" placeholder="@dot_miru" /></label>
       </div>
     </section>
 
     <section class="editor-section">
-      <div class="editor-section-heading"><p class="eyebrow">machine</p><span>Everything is optional</span></div>
+      <div class="editor-section-heading"><p class="eyebrow">{isJapanese ? "マシン" : "machine"}</p><span>{isJapanese ? "すべて任意です" : "Everything is optional"}</span></div>
       <div class="editor-grid">
-        {infoFields.map(([name, label]) => <label>{label}<input name={name} type={name === "logo" ? "url" : "text"} maxlength="100" placeholder={name === "logo" ? "https://…" : undefined} /></label>)}
-        <label>Fonts <span class="field-hint">comma-separated</span><input name="fonts" maxlength="2000" placeholder="Iosevka, Noto Sans JP" /></label>
-        <label>Memory (GB)<input name="ram_gb" type="number" min="0.1" max="4096" step="0.1" placeholder="32" /></label>
-        <label>SSD (TB) <span class="field-hint">comma-separated</span><input name="ssd_tb" inputmode="decimal" placeholder="0.5, 1" /></label>
-        <label>HDD (TB) <span class="field-hint">comma-separated</span><input name="hdd_tb" inputmode="decimal" placeholder="2" /></label>
+        {infoFields.map(([name, label]) => <label><span class="field-label">{label} <code>info.{name}</code></span><input name={name} type={name === "logo" ? "url" : "text"} maxlength="100" placeholder={name === "logo" ? "https://…" : undefined} /></label>)}
+        <label><span class="field-label">{isJapanese ? "フォント" : "Fonts"} <code>info.fonts</code> <span class="field-hint">{isJapanese ? "カンマ区切り" : "comma-separated"}</span></span><input name="fonts" maxlength="2000" placeholder="Iosevka, Noto Sans JP" /></label>
+        <label><span class="field-label">{isJapanese ? "メモリ (GB)" : "Memory (GB)"} <code>info.ram_gb</code></span><input name="ram_gb" type="number" min="0.1" max="4096" step="0.1" placeholder="32" /></label>
+        <label><span class="field-label">SSD (TB) <code>info.ssd_tb</code> <span class="field-hint">comma-separated</span></span><input name="ssd_tb" inputmode="decimal" placeholder="0.5, 1" /></label>
+        <label><span class="field-label">HDD (TB) <code>info.hdd_tb</code> <span class="field-hint">comma-separated</span></span><input name="hdd_tb" inputmode="decimal" placeholder="2" /></label>
       </div>
       <div class="extra-editor" id="extra-editor">
         <div><p class="eyebrow">additional info</p><p>Up to 10 short key/value pairs.</p></div>
@@ -44,13 +52,13 @@ const infoFields = [
     </section>
 
     <section class="editor-section">
-      <div class="editor-section-heading"><p class="eyebrow">configuration</p><span>Add public dotfiles and image URLs</span></div>
+      <div class="editor-section-heading"><p class="eyebrow">{isJapanese ? "設定" : "configuration"}</p><span>{isJapanese ? "公開 dotfiles と画像 URL を追加" : "Add public dotfiles and image URLs"}</span></div>
       <div id="dotfile-editors"></div>
-      <button class="secondary-button" id="add-dotfile" type="button">Add dotfile</button>
+      <button class="secondary-button" id="add-dotfile" type="button">{isJapanese ? "dotfile を追加" : "Add dotfile"}</button>
     </section>
 
     <p class="editor-error" id="editor-error" role="alert" hidden></p>
-    <div class="editor-actions"><button class="primary-link" type="submit">Download dot-miru.toml</button><a href="/">Back to directory</a></div>
+    <div class="editor-actions"><button class="primary-link" type="submit">{isJapanese ? "dot-miru.toml をダウンロード" : "Download dot-miru.toml"}</button><a href={isJapanese ? "/?lang=ja" : "/"}>{isJapanese ? "ディレクトリに戻る" : "Back to directory"}</a></div>
   </form>
 </BaseLayout>
 
@@ -58,11 +66,11 @@ const infoFields = [
   <article class="dotfile-editor">
     <div class="editor-card-heading"><h2>Dotfile</h2><button class="text-button remove-dotfile" type="button">Remove</button></div>
     <div class="editor-grid">
-      <label>ID * <span class="field-hint">letters, numbers, _ and -</span><input class="dotfile-id" required maxlength="100" placeholder="nvim" /></label>
-      <label>Name *<input class="dotfile-name" required maxlength="100" placeholder="Neovim" /></label>
-      <label class="editor-wide">Description *<textarea class="dotfile-desc" required maxlength="5000" placeholder="Describe this configuration."></textarea></label>
+      <label><span class="field-label">ID <code>dotfiles.&lt;id&gt;</code> * <span class="field-hint">letters, numbers, _ and -</span></span><input class="dotfile-id" required maxlength="100" placeholder="nvim" /></label>
+      <label><span class="field-label">Name <code>name</code> *</span><input class="dotfile-name" required maxlength="100" placeholder="Neovim" /></label>
+      <label class="editor-wide"><span class="field-label">Description <code>desc</code> *</span><textarea class="dotfile-desc" required maxlength="5000" placeholder="Describe this configuration."></textarea></label>
     </div>
-    <div class="image-editor"><div><p class="eyebrow">images</p><p>Public HTTPS URLs only.</p></div><div class="image-rows"></div><button class="secondary-button add-image" type="button">Add image URL</button></div>
+    <div class="image-editor"><div><p class="eyebrow">images <code>images</code></p><p>Public HTTPS URLs only.</p></div><div class="image-rows"></div><button class="secondary-button add-image" type="button">Add image URL</button></div>
   </article>
 </template>
 
@@ -70,6 +78,8 @@ const infoFields = [
 <template id="extra-template"><div class="repeat-row"><input class="extra-key" maxlength="40" placeholder="display" /><input class="extra-value" maxlength="200" placeholder="2560×1600" /><button class="text-button remove-row" type="button">Remove</button></div></template>
 
 <script>
+  import { parse } from "smol-toml";
+
   const form = document.querySelector<HTMLFormElement>("#toml-editor")!;
   const error = document.querySelector<HTMLParagraphElement>("#editor-error")!;
   const dotfileEditors = document.querySelector<HTMLDivElement>("#dotfile-editors")!;
@@ -77,6 +87,8 @@ const infoFields = [
   const imageTemplate = document.querySelector<HTMLTemplateElement>("#image-template")!;
   const extraEditor = document.querySelector<HTMLDivElement>("#extra-editor")!;
   const extraTemplate = document.querySelector<HTMLTemplateElement>("#extra-template")!;
+  const fileInput = document.querySelector<HTMLInputElement>("#toml-file")!;
+  const fileName = document.querySelector<HTMLElement>("#toml-file-name")!;
 
   const quote = (value: string) => JSON.stringify(value);
   const value = (name: string) => (form.elements.namedItem(name) as HTMLInputElement | HTMLTextAreaElement).value.trim();
@@ -87,20 +99,26 @@ const infoFields = [
   const clone = (template: HTMLTemplateElement) => template.content.cloneNode(true) as DocumentFragment;
   const attachRowRemoval = (row: HTMLElement) => row.querySelector<HTMLButtonElement>(".remove-row")?.addEventListener("click", () => row.remove());
 
-  function addImage(container: Element) {
+  function addImage(container: Element, image = "") {
     const fragment = clone(imageTemplate);
     const row = fragment.firstElementChild as HTMLElement;
     attachRowRemoval(row);
+    row.querySelector<HTMLInputElement>(".image-url")!.value = image;
     container.append(fragment);
   }
 
-  function addDotfile() {
+  function addDotfile(dotfile?: { id: string; name: string; desc: string; images: string[] }) {
     const fragment = clone(dotfileTemplate);
     const card = fragment.firstElementChild as HTMLElement;
     card.querySelector<HTMLButtonElement>(".remove-dotfile")?.addEventListener("click", () => card.remove());
     const rows = card.querySelector(".image-rows")!;
     card.querySelector<HTMLButtonElement>(".add-image")?.addEventListener("click", () => addImage(rows));
-    addImage(rows);
+    if (dotfile) {
+      card.querySelector<HTMLInputElement>(".dotfile-id")!.value = dotfile.id;
+      card.querySelector<HTMLInputElement>(".dotfile-name")!.value = dotfile.name;
+      card.querySelector<HTMLTextAreaElement>(".dotfile-desc")!.value = dotfile.desc;
+      dotfile.images.forEach((image) => addImage(rows, image));
+    } else addImage(rows);
     dotfileEditors.append(fragment);
   }
 
@@ -112,8 +130,64 @@ const infoFields = [
     rows.append(fragment);
   }
 
-  document.querySelector<HTMLButtonElement>("#add-dotfile")?.addEventListener("click", addDotfile);
+  const object = (input: unknown): Record<string, unknown> => input && typeof input === "object" && !Array.isArray(input) ? input as Record<string, unknown> : {};
+  const text = (input: unknown) => typeof input === "string" ? input : "";
+  const numberText = (input: unknown) => typeof input === "number" ? String(input) : "";
+  const textList = (input: unknown) => Array.isArray(input) ? input.filter((item): item is string | number => typeof item === "string" || typeof item === "number").map(String) : [];
+  const setValue = (name: string, input: unknown) => { const field = form.elements.namedItem(name) as HTMLInputElement | HTMLTextAreaElement | null; if (field) field.value = text(input); };
+
+  function loadToml(content: string) {
+    let profile: Record<string, unknown>;
+    try {
+      profile = object(parse(content));
+    } catch {
+      showError("This file is not valid TOML.");
+      return;
+    }
+    if (!text(profile.name)) {
+      showError("This TOML needs a display name.");
+      return;
+    }
+
+    form.reset();
+    fileName.textContent = "Choose a dot-miru.toml file";
+    error.hidden = true;
+    dotfileEditors.replaceChildren();
+    extraEditor.querySelector(".extra-rows")!.replaceChildren();
+    setValue("name", profile.name);
+    setValue("repository", profile.repository);
+    setValue("summary", profile.summary);
+    const sns = object(profile.sns);
+    setValue("github", sns.github);
+    setValue("x", sns.x);
+    const info = object(profile.info);
+    ["os", "kernel", "shell", "wm", "de", "cursor_theme", "terminal", "gpu", "theme", "logo"].forEach((name) => setValue(name, info[name]));
+    setValue("fonts", textList(info.fonts).join(", "));
+    setValue("ram_gb", numberText(info.ram_gb));
+    setValue("ssd_tb", textList(info.ssd_tb).join(", "));
+    setValue("hdd_tb", textList(info.hdd_tb).join(", "));
+    Object.entries(object(info.extra)).slice(0, 10).forEach(([key, item]) => {
+      if (typeof item !== "string") return;
+      addExtra();
+      const row = extraEditor.querySelector<HTMLElement>(".extra-rows")!.lastElementChild!;
+      row.querySelector<HTMLInputElement>(".extra-key")!.value = key;
+      row.querySelector<HTMLInputElement>(".extra-value")!.value = item;
+    });
+    Object.entries(object(profile.dotfiles)).forEach(([id, rawDotfile]) => {
+      const dotfile = object(rawDotfile);
+      if (dotfile.hidden === true || !text(dotfile.name) || !text(dotfile.desc)) return;
+      addDotfile({ id, name: text(dotfile.name), desc: text(dotfile.desc), images: textList(dotfile.images) });
+    });
+  }
+
+  document.querySelector<HTMLButtonElement>("#add-dotfile")?.addEventListener("click", () => addDotfile());
   extraEditor.querySelector<HTMLButtonElement>(".add-extra")?.addEventListener("click", addExtra);
+  fileInput.addEventListener("change", async () => {
+    const file = fileInput.files?.[0];
+    if (!file) return;
+    loadToml(await file.text());
+    fileName.textContent = file.name;
+  });
   addDotfile();
 
   form.addEventListener("submit", (event) => {
@@ -130,7 +204,7 @@ const infoFields = [
     const github = value("github"), x = value("x");
     if (github || x) { lines.push("", "[sns]"); if (github) lines.push(`github = ${quote(github)}`); if (x) lines.push(`x = ${quote(x)}`); }
     const infoLines: string[] = [];
-    ["os", "host", "kernel", "shell", "wm", "de", "cursor_theme", "terminal", "gpu", "theme", "logo"].forEach((name) => optional(name, infoLines));
+    ["os", "kernel", "shell", "wm", "de", "cursor_theme", "terminal", "gpu", "theme", "logo"].forEach((name) => optional(name, infoLines));
     const logo = value("logo");
     if (logo && !isHttpsUrl(logo)) return fail("Logo image must be an HTTPS URL.", form.elements.namedItem("logo") as HTMLInputElement);
     const fonts = list("fonts"); if (fonts.length) infoLines.push(`fonts = [${fonts.map(quote).join(", ")}]`);

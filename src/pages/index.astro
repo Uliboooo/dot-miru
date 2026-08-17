@@ -5,10 +5,13 @@ import ProfileView from "../components/ProfileView.astro";
 import SourceForm from "../components/SourceForm.astro";
 import { loadProfile, ProfileError } from "../lib/profile";
 import { registry } from "../lib/registry";
+import { localeFromUrl, localizedPath } from "../lib/i18n";
 
 export const prerender = false;
 
 const source = Astro.url.searchParams.get("source") ?? "";
+const locale = localeFromUrl(Astro.url);
+const isJapanese = locale === "ja";
 const directoryProfiles = await Promise.all(
   registry.map(async (entry) => {
     try {
@@ -22,23 +25,45 @@ let profile;
 let error: string | undefined;
 if (source) {
   try { profile = await loadProfile(source); }
-  catch (cause) { error = cause instanceof ProfileError ? cause.message : "Something went wrong while opening this profile."; }
+  catch (cause) { error = cause instanceof ProfileError ? cause.message : (isJapanese ? "プロフィールを開く途中で問題が発生しました。" : "Something went wrong while opening this profile."); }
 }
 ---
 
 <BaseLayout title={profile ? `${profile.name} — dot-miru` : "dot-miru"}>
-  {profile ? <ProfileView profile={profile} source={source} /> : (
+  {profile ? <ProfileView profile={profile} source={source} locale={locale} /> : (
     <>
       <section class="intro">
-        <p class="eyebrow">dotfiles, clearly presented</p>
+        <p class="eyebrow">{isJapanese ? "dotfiles を、見やすく" : "dotfiles, clearly presented"}</p>
         <h1>A place for the tools that make your computer yours.</h1>
-        <p>dot-miru reads a public TOML file and turns it into a simple, shareable profile.</p>
+        <p>{isJapanese ? "dot-miru は公開 TOML ファイルを読み込み、シンプルで共有しやすいプロフィールにします。" : "dot-miru reads a public TOML file and turns it into a simple, shareable profile."}</p>
       </section>
       <SourceForm source={source} />
-      {error && <section class="error" role="alert"><h2>Could not open this profile</h2><p>{error}</p></section>}
+      {error && <section class="error" role="alert"><h2>{isJapanese ? "プロフィールを開けませんでした" : "Could not open this profile"}</h2><p>{error}</p></section>}
+      <section class="guide" aria-labelledby="guide-title">
+        <div class="section-heading"><div><p class="eyebrow">{isJapanese ? "はじめかた" : "getting started"}</p><h2 id="guide-title">{isJapanese ? "作る、共有する、掲載する。" : "Make, share, and register."}</h2></div></div>
+        <div class="guide-grid">
+          <article><h3>{isJapanese ? "1. TOML を書く" : "1. Write a TOML"}</h3><p>{isJapanese ? <><a href={localizedPath("/editor", locale)}>エディター</a>で <code>dot-miru.toml</code> を作成・読み込みできます。</> : <>Use the <a href="/editor">Editor</a> to create or load a <code>dot-miru.toml</code> file.</>}</p></article>
+          <article><h3>{isJapanese ? "2. raw URL を共有する" : "2. Share its raw URL"}</h3><p>{isJapanese ? "GitHub または Gist に置き、その HTTPS raw URL をここで開きます。" : "Put the file in GitHub or a Gist, then open its HTTPS raw URL here."}</p></article>
+          <article><h3>{isJapanese ? "3. ディレクトリに載せる" : "3. Join the directory"}</h3><p>{isJapanese ? "プロフィール一覧への raw URL 追加を含むプルリクエストを送ってください。" : "Open a pull request that adds your raw URL to the profile registry."}</p><a href="https://github.com/Uliboooo/dot-miru/edit/main/src/data/profiles.toml" target="_blank" rel="noreferrer">{isJapanese ? "PR で登録する ↗" : "Register with a PR ↗"}</a></article>
+        </div>
+        <div class="format-guide">
+          <div><p class="eyebrow">TOML format</p><p>{isJapanese ? "必要なのは名前だけです。セットアップを表す項目を必要な分だけ追加できます。" : "A profile needs only a name. Add whichever fields describe your setup."}</p><a href={localizedPath("/editor", locale)}>{isJapanese ? "エディターを開く →" : "Open Editor →"}</a></div>
+          <pre><code>name = "Your name"
+repository = "https://github.com/you/dotfiles"
+
+[info]
+os = "NixOS"
+shell = "fish"
+fonts = ["Iosevka"]
+
+[dotfiles.nvim]
+name = "Neovim"
+desc = "My Neovim configuration."</code></pre>
+        </div>
+      </section>
       <section class="directory" aria-labelledby="directory-title">
-        <div class="section-heading"><div><p class="eyebrow">directory</p><h2 id="directory-title">Published profiles</h2></div><span>{registry.length} profiles</span></div>
-        {registry.length ? <div class="profile-grid">{directoryProfiles.map(({ entry, profile }) => <ProfileCard slug={entry.slug} profile={profile} />)}</div> : <p class="empty">No profiles are registered yet. Add one in <code>src/data/profiles.toml</code>.</p>}
+        <div class="section-heading"><div><p class="eyebrow">{isJapanese ? "ディレクトリ" : "directory"}</p><h2 id="directory-title">{isJapanese ? "掲載プロフィール" : "Published profiles"}</h2></div><span>{registry.length} {isJapanese ? "プロフィール" : "profiles"}</span></div>
+        {registry.length ? <div class="profile-grid">{directoryProfiles.map(({ entry, profile }) => <ProfileCard slug={entry.slug} profile={profile} locale={locale} />)}</div> : <p class="empty">{isJapanese ? <><a href="https://github.com/Uliboooo/dot-miru/edit/main/src/data/profiles.toml" target="_blank" rel="noreferrer">最初のプロフィールを PR で追加する ↗</a></> : <>No profiles are registered yet. <a href="https://github.com/Uliboooo/dot-miru/edit/main/src/data/profiles.toml" target="_blank" rel="noreferrer">Add the first one with a pull request ↗</a></>}</p>}
       </section>
     </>
   )}

@@ -19,7 +19,6 @@ export type Profile = {
   sns?: { github?: string; x?: string };
   info?: {
     os?: string;
-    host?: string;
     kernel?: string;
     shell?: string;
     wm?: string;
@@ -64,7 +63,6 @@ const profileSchema = z.object({
   info: z
     .object({
       os: z.string().trim().min(1).max(100).optional(),
-      host: z.string().trim().min(1).max(100).optional(),
       kernel: z.string().trim().min(1).max(100).optional(),
       shell: z.string().trim().min(1).max(100).optional(),
       wm: z.string().trim().min(1).max(100).optional(),
@@ -127,7 +125,6 @@ export function parseProfile(toml: string): Profile {
     ...profile,
     info: info && {
       os: info.os,
-      host: info.host,
       kernel: info.kernel,
       shell: info.shell,
       wm: info.wm,
@@ -155,6 +152,26 @@ function cacheKey(source: string): Request {
 
 type CachedProfile = { cachedAt: number; profile: Profile };
 
+async function fetchTomlSource(source: string, fetcher: typeof fetch): Promise<Response> {
+  let current = source;
+  for (let redirects = 0; redirects <= 3; redirects += 1) {
+    const response = await fetcher(current, {
+      redirect: "manual",
+      headers: { Accept: "application/toml,text/plain" },
+    });
+    if (response.status < 300 || response.status >= 400) return response;
+
+    const location = response.headers.get("location");
+    if (!location) throw new ProfileError("fetch_failed", "The TOML source redirected without a destination.");
+    const next = new URL(location, current).toString();
+    if (!isAllowedSource(next)) {
+      throw new ProfileError("fetch_failed", "The TOML source redirected to an unsupported host.");
+    }
+    current = next;
+  }
+  throw new ProfileError("fetch_failed", "The TOML source redirected too many times.");
+}
+
 export async function loadProfile(source: string, fetcher: typeof fetch = fetch): Promise<Profile> {
   if (!isAllowedSource(source)) {
     throw new ProfileError("invalid_source", "Use an HTTPS raw TOML URL from GitHub or Gist.");
@@ -172,8 +189,9 @@ export async function loadProfile(source: string, fetcher: typeof fetch = fetch)
 
   let response: Response;
   try {
-    response = await fetcher(source, { redirect: "error", headers: { Accept: "application/toml,text/plain" } });
-  } catch {
+    response = await fetchTomlSource(source, fetcher);
+  } catch (error) {
+    if (error instanceof ProfileError) throw error;
     throw new ProfileError("fetch_failed", "The TOML source could not be reached.");
   }
   if (!response.ok) {

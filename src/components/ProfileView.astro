@@ -1,12 +1,15 @@
 ---
 import type { Profile } from "../lib/profile";
+import type { Locale } from "../lib/i18n";
 
 interface Props {
   profile: Profile;
   source?: string;
+  locale: Locale;
 }
 
-const { profile, source } = Astro.props;
+const { profile, source, locale } = Astro.props;
+const isJapanese = locale === "ja";
 const formatStorage = (value: number) => (value < 1 ? `${Math.round(value * 1024)} GB` : `${value} TB`);
 const socialId = (id: string) => id.replace(/^@/, "");
 const socialLinks = [
@@ -23,7 +26,7 @@ const socialLinks = [
       <h1>{profile.name}</h1>
       {profile.summary && <p class="summary">{profile.summary}</p>}
       {(profile.repository || socialLinks.length > 0) && <div class="links">
-        {profile.repository && <a class="primary-link" href={profile.repository} target="_blank" rel="noreferrer">View repository <span aria-hidden="true">↗</span></a>}
+        {profile.repository && <a class="primary-link" href={profile.repository} target="_blank" rel="noreferrer">{isJapanese ? "リポジトリを見る" : "View repository"} <span aria-hidden="true">↗</span></a>}
         {socialLinks.map((link) => <a href={link.href} target="_blank" rel="noreferrer">{link.label} ↗</a>)}
       </div>}
     </div>
@@ -31,26 +34,25 @@ const socialLinks = [
 
   {profile.info && (
     <section class="machine" aria-labelledby="machine-title">
-      <p class="eyebrow" id="machine-title">machine</p>
+      <p class="eyebrow" id="machine-title">{isJapanese ? "マシン" : "machine"}</p>
       <dl>
         {profile.info.os && <div><dt>OS</dt><dd>{profile.info.os}</dd></div>}
-        {profile.info.host && <div><dt>Host</dt><dd>{profile.info.host}</dd></div>}
         {profile.info.kernel && <div><dt>Kernel</dt><dd>{profile.info.kernel}</dd></div>}
         {profile.info.shell && <div><dt>Shell</dt><dd>{profile.info.shell}</dd></div>}
         {profile.info.wm && <div><dt>WM</dt><dd>{profile.info.wm}</dd></div>}
         {profile.info.de && <div><dt>DE</dt><dd>{profile.info.de}</dd></div>}
-        {profile.info.cursorTheme && <div><dt>Cursor theme</dt><dd>{profile.info.cursorTheme}</dd></div>}
+        {profile.info.cursorTheme && <div><dt>{isJapanese ? "カーソルテーマ" : "Cursor theme"}</dt><dd>{profile.info.cursorTheme}</dd></div>}
         {profile.info.terminal && <div><dt>Terminal</dt><dd>{profile.info.terminal}</dd></div>}
         {profile.info.fonts?.length && <div><dt>Fonts</dt><dd>{profile.info.fonts.join(", ")}</dd></div>}
         {profile.info.gpu && <div><dt>GPU</dt><dd>{profile.info.gpu}</dd></div>}
         {profile.info.theme && <div><dt>Theme</dt><dd>{profile.info.theme}</dd></div>}
-        {profile.info.ramGb && <div><dt>Memory</dt><dd>{profile.info.ramGb} GB</dd></div>}
+        {profile.info.ramGb && <div><dt>{isJapanese ? "メモリ" : "Memory"}</dt><dd>{profile.info.ramGb} GB</dd></div>}
         {profile.info.ssdTb?.length && <div><dt>SSD</dt><dd>{profile.info.ssdTb.map(formatStorage).join(" + ")}</dd></div>}
         {profile.info.hddTb?.length && <div><dt>HDD</dt><dd>{profile.info.hddTb.map(formatStorage).join(" + ")}</dd></div>}
       </dl>
       {profile.info.extra && Object.keys(profile.info.extra).length > 0 && (
         <div class="extra-info">
-          <p class="eyebrow">additional info</p>
+          <p class="eyebrow">{isJapanese ? "追加情報" : "additional info"}</p>
           <dl>
             {Object.entries(profile.info.extra).map(([key, value]) => <div><dt>{key}</dt><dd>{value}</dd></div>)}
           </dl>
@@ -60,7 +62,7 @@ const socialLinks = [
   )}
 
   <section class="dotfiles" aria-labelledby="dotfiles-title">
-    <div class="section-heading"><p class="eyebrow" id="dotfiles-title">configuration</p><span>{profile.dotfiles.length} items</span></div>
+    <div class="section-heading"><p class="eyebrow" id="dotfiles-title">{isJapanese ? "設定" : "configuration"}</p><span>{profile.dotfiles.length} {isJapanese ? "項目" : "items"}</span></div>
     {profile.dotfiles.length ? (
       <div class="dotfile-list">
         {profile.dotfiles.map((dotfile) => (
@@ -79,9 +81,9 @@ const socialLinks = [
           </article>
         ))}
       </div>
-    ) : <p class="empty">No public dotfiles have been added yet.</p>}
+    ) : <p class="empty">{isJapanese ? "公開中の dotfiles はまだありません。" : "No public dotfiles have been added yet."}</p>}
   </section>
-  {source && <p class="source-note">Source: <a href={source} target="_blank" rel="noreferrer">raw TOML ↗</a></p>}
+  {source && <p class="source-note">{isJapanese ? "ソース: " : "Source: "}<a href={source} target="_blank" rel="noreferrer">raw TOML ↗</a></p>}
 </article>
 
 <dialog class="image-dialog" aria-label="Screenshot preview">

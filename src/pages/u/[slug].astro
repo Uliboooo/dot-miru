@@ -3,17 +3,20 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
 import ProfileView from "../../components/ProfileView.astro";
 import { findProfile } from "../../lib/registry";
 import { loadProfile, ProfileError } from "../../lib/profile";
+import { localeFromUrl, localizedPath } from "../../lib/i18n";
 
 export const prerender = false;
 
 const entry = findProfile(Astro.params.slug ?? "");
-if (!entry) return Astro.redirect("/", 302);
+const locale = localeFromUrl(Astro.url);
+const isJapanese = locale === "ja";
+if (!entry) return Astro.redirect(localizedPath("/", locale), 302);
 let profile;
 let error: string | undefined;
 try { profile = await loadProfile(entry.source); }
-catch (cause) { error = cause instanceof ProfileError ? cause.message : "Something went wrong while opening this profile."; }
+catch (cause) { error = cause instanceof ProfileError ? cause.message : (isJapanese ? "プロフィールを開く途中で問題が発生しました。" : "Something went wrong while opening this profile."); }
 ---
 
 <BaseLayout title={profile ? `${profile.name} — dot-miru` : "dot-miru"}>
-  {profile ? <ProfileView profile={profile} source={entry.source} /> : <section class="error" role="alert"><h1>Could not open this profile</h1><p>{error}</p><a href="/">Back to dot-miru</a></section>}
+  {profile ? <ProfileView profile={profile} source={entry.source} locale={locale} /> : <section class="error" role="alert"><h1>{isJapanese ? "プロフィールを開けませんでした" : "Could not open this profile"}</h1><p>{error}</p><a href={localizedPath("/", locale)}>{isJapanese ? "dot-miru に戻る" : "Back to dot-miru"}</a></section>}
 </BaseLayout>

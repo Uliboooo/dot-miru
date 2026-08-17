@@ -1,13 +1,16 @@
 ---
 import type { Profile } from "../lib/profile";
+import type { Locale } from "../lib/i18n";
+import { localizedPath } from "../lib/i18n";
 
-interface Props { slug: string; profile?: Profile; }
-const { slug, profile } = Astro.props;
+interface Props { slug: string; profile?: Profile; locale: Locale; }
+const { slug, profile, locale } = Astro.props;
+const isJapanese = locale === "ja";
 ---
 
-<a class="profile-card" href={`/u/${slug}`}>
-  <span class="eyebrow">profile</span>
+<a class="profile-card" href={localizedPath(`/u/${slug}`, locale)}>
+  <span class="eyebrow">{isJapanese ? "プロフィール" : "profile"}</span>
   <h2>{profile?.name ?? slug}</h2>
-  <p>{profile?.summary ?? "Open this dotfiles profile."}</p>
+  <p>{profile?.summary ?? (isJapanese ? "この dotfiles プロフィールを開く。" : "Open this dotfiles profile.")}</p>
   {profile?.info?.os && <span class="card-meta">{profile.info.os}</span>}
 </a>

@@ -1,28 +1,38 @@
 ---
 import "../styles/global.css";
+import { localeFromUrl, localizedPath } from "../lib/i18n";
 
 interface Props {
   title?: string;
 }
 
 const { title = "dot-miru" } = Astro.props;
+const locale = localeFromUrl(Astro.url);
+const isJapanese = locale === "ja";
+const toggleUrl = new URL(Astro.url);
+if (isJapanese) toggleUrl.searchParams.delete("lang");
+else toggleUrl.searchParams.set("lang", "ja");
+const toggleHref = `${toggleUrl.pathname}${toggleUrl.search}${toggleUrl.hash}`;
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang={locale}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="description" content="A small, readable home for dotfiles." />
+    <meta name="description" content={isJapanese ? "dotfiles のための、小さく読みやすいプロフィールページ。" : "A small, readable home for dotfiles."} />
     <title>{title}</title>
   </head>
   <body>
     <header class="site-header">
-      <a class="wordmark" href="/">dot-miru<span aria-hidden="true">.</span></a>
-      <span class="header-note">a place for dotfiles</span>
-      <a class="header-link" href="/editor">Create TOML</a>
+      <a class="wordmark" href={localizedPath("/", locale)}>dot-miru<span aria-hidden="true">.</span></a>
+      <span class="header-note">{isJapanese ? "dotfiles の置き場所" : "a place for dotfiles"}</span>
+      <nav class="header-nav" aria-label={isJapanese ? "サイトナビゲーション" : "Site navigation"}>
+        <a class="header-link" href={localizedPath("/editor", locale)}>Editor</a>
+        <a class="header-link language-link" href={toggleHref} lang={isJapanese ? "en" : "ja"}>{isJapanese ? "English" : "日本語"}</a>
+      </nav>
     </header>
     <main><slot /></main>
-    <footer>Built from a TOML file.</footer>
+    <footer>{isJapanese ? "TOML ファイルから作られています。" : "Built from a TOML file."}</footer>
   </body>
 </html>

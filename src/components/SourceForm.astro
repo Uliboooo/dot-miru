@@ -1,12 +1,16 @@
 ---
+import { localeFromUrl } from "../lib/i18n";
+
 const { source = "" } = Astro.props;
+const isJapanese = localeFromUrl(Astro.url) === "ja";
 ---
 
 <form class="source-form" method="get" action="/">
-  <label for="source">Open a public dotfiles TOML</label>
+  {isJapanese && <input type="hidden" name="lang" value="ja" />}
+  <label for="source">{isJapanese ? "公開中の dotfiles TOML を開く" : "Open a public dotfiles TOML"}</label>
   <div class="source-controls">
     <input id="source" name="source" type="url" value={source} placeholder="https://raw.githubusercontent.com/.../dot-miru.toml" required />
-    <button type="submit">Open profile</button>
+    <button type="submit">{isJapanese ? "プロフィールを開く" : "Open profile"}</button>
   </div>
-  <p>GitHub and Gist raw HTTPS URLs only.</p>
+  <p>{isJapanese ? "GitHub または Gist の raw HTTPS URL のみ対応しています。" : "GitHub and Gist raw HTTPS URLs only."}</p>
 </form>

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { isAllowedSource, parseProfile } from "../src/lib/profile";
+import { isAllowedSource, loadProfile, parseProfile } from "../src/lib/profile";
 
 const validToml = `
 name = "Seli"
@@ -11,7 +11,6 @@ github = "seli"
 
 [info]
 os = "NixOS"
-host = "ThinkPad X1 Carbon"
 kernel = "6.16"
 shell = "zsh"
 wm = "niri"
@@ -43,6 +42,17 @@ describe("source validation", () => {
   it("accepts GitHub and Gist raw TOML URLs", () => {
     expect(isAllowedSource("https://raw.githubusercontent.com/a/b/main/dot-miru.toml")).toBe(true);
     expect(isAllowedSource("https://gist.githubusercontent.com/a/id/raw/dot-miru.toml")).toBe(true);
+  });
+
+  it("follows redirects only to allowed raw TOML hosts", async () => {
+    const target = "https://gist.githubusercontent.com/a/id/raw/dot-miru.toml";
+    const fetcher = async (input: string | URL | Request) => {
+      if (String(input).includes("start.toml")) return new Response(null, { status: 302, headers: { location: target } });
+      return new Response('name = "Redirected"');
+    };
+    await expect(loadProfile("https://gist.githubusercontent.com/a/id/raw/start.toml", fetcher as typeof fetch)).resolves.toMatchObject({ name: "Redirected" });
+    const unsafeRedirect = async () => new Response(null, { status: 302, headers: { location: "https://example.com/profile.toml" } });
+    await expect(loadProfile("https://gist.githubusercontent.com/a/id/raw/start.toml", unsafeRedirect as typeof fetch)).rejects.toThrow("unsupported host");
   });
 
   it("rejects non-raw, non-HTTPS, and non-TOML URLs", () => {

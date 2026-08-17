@@ -3,6 +3,8 @@ import cloudflare from "@astrojs/cloudflare";
 
 export default defineConfig({
   output: "server",
+  // This app does not use Astro sessions, so it needs no Cloudflare KV binding.
+  session: false,
   adapter: cloudflare({
     platformProxy: { enabled: true },
     imageService: "passthrough",

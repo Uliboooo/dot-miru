@@ -2,5 +2,5 @@
   "$schema": "./node_modules/wrangler/config-schema.json",
   "name": "dot-miru",
   "compatibility_date": "2026-08-16",
-  "pages_build_output_dir": "./dist"
+  "compatibility_flags": ["global_fetch_strictly_public"]
 }

@@ -1,0 +1,29 @@
+.editor-intro {
+  max-width: 980px;
+}
+
+.editor-intro h1 {
+  font-size: clamp(2.8rem, 4.5vw, 4.25rem);
+  text-wrap: balance;
+}
+
+@media (min-width: 700px) {
+  .editor-intro h1 {
+    white-space: nowrap;
+  }
+}
+
+.editor-grid .field-label {
+  display: block;
+}
+
+.editor-grid .field-label code,
+.image-editor .eyebrow code {
+  background: #ead8c5;
+  border: 1px solid #d8bea4;
+  border-radius: 2px;
+  color: #623d27;
+  font-size: .78em;
+  font-weight: 600;
+  padding: .08em .32em;
+}
