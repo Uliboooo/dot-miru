@@ -5,3 +5,7 @@
 # [[profile]]
 # slug = "example"
 # source = "https://raw.githubusercontent.com/example/dotfiles/main/dot-miru.toml"
+
+[[profile]]
+slug = "uliboooo"
+source = "https://gist.githubusercontent.com/Uliboooo/0bb6770a66cf4d3e1cdcff07ada39637/raw/ad6b61b4f905690a04fc1f28e66cd298c8a0a3d5/uliboooo_dotfiels.toml"
