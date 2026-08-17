@@ -58,7 +58,7 @@ const infoFields = [
     </section>
 
     <p class="editor-error" id="editor-error" role="alert" hidden></p>
-    <div class="editor-actions"><button class="primary-link" type="submit">{isJapanese ? "dot-miru.toml をダウンロード" : "Download dot-miru.toml"}</button><button class="secondary-button" id="publish-gist" type="button">{isJapanese ? "Gist に公開" : "Publish via Gist"}</button><a href={isJapanese ? "/?lang=ja" : "/"}>{isJapanese ? "ディレクトリに戻る" : "Back to directory"}</a></div>
+    <div class="editor-actions"><button class="primary-link" type="submit">{isJapanese ? "dot-miru.toml をダウンロード" : "Download dot-miru.toml"}</button><button class="secondary-button" id="publish-gist" type="button">{isJapanese ? "Gist に公開" : "Publish via Gist"}</button><button class="secondary-button" id="submit-profile" type="button">{isJapanese ? "プロフィールを掲載申請" : "Submit profile PR"}</button><a href={isJapanese ? "/?lang=ja" : "/"}>{isJapanese ? "ディレクトリに戻る" : "Back to directory"}</a></div>
     <p class="editor-publish-note" id="editor-publish-note" role="status" hidden></p>
   </form>
 </BaseLayout>
@@ -99,6 +99,18 @@ const infoFields = [
   const list = (name: string) => value(name).split(",").map((item) => item.trim()).filter(Boolean);
   const selected = (name: string) => (form.elements.namedItem(name) as HTMLSelectElement).value;
   const isHttpsUrl = (item: string) => { try { return new URL(item).protocol === "https:"; } catch { return false; } };
+  const isRawTomlUrl = (item: string) => { try { const url = new URL(item); return url.protocol === "https:" && ["raw.githubusercontent.com", "gist.githubusercontent.com"].includes(url.hostname) && url.pathname.endsWith(".toml"); } catch { return false; } };
+  const canonicalizeGistUrl = (item: string) => {
+    const url = new URL(item);
+    const parts = url.pathname.split("/").filter(Boolean);
+    if (url.hostname === "gist.githubusercontent.com" && parts.length >= 5 && parts[2] === "raw") {
+      url.pathname = `/${parts[0]}/${parts[1]}/raw/${parts.slice(4).join("/")}`;
+      url.search = "";
+      url.hash = "";
+    }
+    return url.toString();
+  };
+  const slugify = (item: string) => item.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") || "your-name";
   const showError = (message: string, input?: HTMLElement) => { error.textContent = message; error.hidden = false; error.scrollIntoView({ behavior: "smooth", block: "center" }); input?.focus(); };
   const clone = (template: HTMLTemplateElement) => template.content.cloneNode(true) as DocumentFragment;
   const attachRowRemoval = (row: HTMLElement) => row.querySelector<HTMLButtonElement>(".remove-row")?.addEventListener("click", () => row.remove());
@@ -202,6 +214,27 @@ const infoFields = [
     } catch {
       gistWindow?.close();
       showError("Could not copy the TOML. Please allow clipboard access and try again.");
+    }
+  });
+  document.querySelector<HTMLButtonElement>("#submit-profile")?.addEventListener("click", async () => {
+    const japanese = document.documentElement.lang === "ja";
+    const profileName = value("name");
+    if (!profileName) return showError(japanese ? "掲載申請には表示名が必要です。" : "A display name is required before submitting a profile.");
+    const slug = window.prompt(japanese ? "プロフィール URL 用の slug を入力してください。" : "Choose a slug for the profile URL.", slugify(profileName))?.trim();
+    if (!slug) return;
+    if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug)) return showError(japanese ? "slug は小文字・数字・ハイフンだけで入力してください。" : "Use lowercase letters, numbers, and hyphens for the slug.");
+    const source = window.prompt(japanese ? "公開済みの raw TOML URL を貼り付けてください。" : "Paste the published raw TOML URL.")?.trim();
+    if (!source) return;
+    if (!isRawTomlUrl(source)) return showError(japanese ? "GitHub または Gist の raw HTTPS TOML URL を入力してください。" : "Use a GitHub or Gist raw HTTPS TOML URL.");
+    const registryEntry = `[[profile]]\nslug = ${quote(slug)}\nsource = ${quote(canonicalizeGistUrl(source))}\n`;
+    const prWindow = window.open("https://github.com/Uliboooo/dot-miru/edit/main/src/data/profiles.toml", "_blank", "noopener");
+    try {
+      await navigator.clipboard.writeText(registryEntry);
+      publishNote.textContent = japanese ? "登録用の TOML をコピーしました。開いたファイル末尾に貼り付け、Commit changes から PR を作成してください。" : "The registry entry is copied. Paste it at the end of the opened file, then use Commit changes to create a PR.";
+      publishNote.hidden = false;
+    } catch {
+      prWindow?.close();
+      showError(japanese ? "登録用 TOML をコピーできませんでした。クリップボードを許可して再試行してください。" : "Could not copy the registry entry. Please allow clipboard access and try again.");
     }
   });
   fileInput.addEventListener("change", async () => {

@@ -46,6 +46,25 @@ export class ProfileError extends Error {
   }
 }
 
+/** Turn GitHub Gist's revision-pinned Raw links into their stable latest-file form. */
+export function canonicalizeSource(source: string): string {
+  try {
+    const url = new URL(source);
+    if (url.hostname !== "gist.githubusercontent.com") return source;
+    const parts = url.pathname.split("/").filter(Boolean);
+    // /<user>/<gist-id>/raw/<revision>/<filename> → /<user>/<gist-id>/raw/<filename>
+    if (parts.length >= 5 && parts[2] === "raw") {
+      url.pathname = `/${parts[0]}/${parts[1]}/raw/${parts.slice(4).join("/")}`;
+      url.search = "";
+      url.hash = "";
+      return url.toString();
+    }
+  } catch {
+    // Validation is handled by isAllowedSource.
+  }
+  return source;
+}
+
 const httpsUrl = z.url().refine((value) => new URL(value).protocol === "https:", {
   message: "must be an HTTPS URL",
 });
@@ -173,12 +192,13 @@ async function fetchTomlSource(source: string, fetcher: typeof fetch): Promise<R
 }
 
 export async function loadProfile(source: string, fetcher: typeof fetch = fetch): Promise<Profile> {
-  if (!isAllowedSource(source)) {
+  const canonicalSource = canonicalizeSource(source);
+  if (!isAllowedSource(canonicalSource)) {
     throw new ProfileError("invalid_source", "Use an HTTPS raw TOML URL from GitHub or Gist.");
   }
 
   const cache = (globalThis as typeof globalThis & { caches?: CacheStorage & { default?: Cache } }).caches?.default;
-  const key = cacheKey(source);
+  const key = cacheKey(canonicalSource);
   if (cache) {
     const hit = await cache.match(key);
     if (hit) {
@@ -189,7 +209,7 @@ export async function loadProfile(source: string, fetcher: typeof fetch = fetch)
 
   let response: Response;
   try {
-    response = await fetchTomlSource(source, fetcher);
+    response = await fetchTomlSource(canonicalSource, fetcher);
   } catch (error) {
     if (error instanceof ProfileError) throw error;
     throw new ProfileError("fetch_failed", "The TOML source could not be reached.");

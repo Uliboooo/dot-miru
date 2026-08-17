@@ -57,6 +57,8 @@ Publish the TOML to a GitHub repository or Gist and open it with its raw URL:
 https://dot-miru.uliboooo.workers.dev/?source=https%3A%2F%2Fraw.githubusercontent.com%2Fyou%2Fdotfiles%2Fmain%2Fdot-miru.toml
 ```
 
+Gist's **Raw** button may copy a revision-pinned URL. That URL is accepted and automatically normalized to the stable, latest-file form when dot-miru loads it or prepares a directory entry.
+
 ## Register a profile in the directory
 
 To have a profile listed at `/u/<slug>` and on the top-page directory, open a pull request adding an entry to [`src/data/profiles.toml`](https://github.com/Uliboooo/dot-miru/edit/main/src/data/profiles.toml):

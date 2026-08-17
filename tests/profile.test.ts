@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { isAllowedSource, loadProfile, parseProfile } from "../src/lib/profile";
+import { canonicalizeSource, isAllowedSource, loadProfile, parseProfile } from "../src/lib/profile";
 
 const validToml = `
 name = "Seli"
@@ -42,6 +42,7 @@ describe("source validation", () => {
   it("accepts GitHub and Gist raw TOML URLs", () => {
     expect(isAllowedSource("https://raw.githubusercontent.com/a/b/main/dot-miru.toml")).toBe(true);
     expect(isAllowedSource("https://gist.githubusercontent.com/a/id/raw/dot-miru.toml")).toBe(true);
+    expect(canonicalizeSource("https://gist.githubusercontent.com/a/id/raw/123abc/dot-miru.toml")).toBe("https://gist.githubusercontent.com/a/id/raw/dot-miru.toml");
   });
 
   it("follows redirects only to allowed raw TOML hosts", async () => {
