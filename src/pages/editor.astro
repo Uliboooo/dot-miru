@@ -41,8 +41,8 @@ const infoFields = [
         {infoFields.map(([name, label]) => <label><span class="field-label">{label} <code>info.{name}</code></span><input name={name} type={name === "logo" ? "url" : "text"} maxlength="100" placeholder={name === "logo" ? "https://…" : undefined} /></label>)}
         <label><span class="field-label">{isJapanese ? "フォント" : "Fonts"} <code>info.fonts</code> <span class="field-hint">{isJapanese ? "カンマ区切り" : "comma-separated"}</span></span><input name="fonts" maxlength="2000" placeholder="Iosevka, Noto Sans JP" /></label>
         <label><span class="field-label">{isJapanese ? "メモリ (GB)" : "Memory (GB)"} <code>info.ram_gb</code></span><input name="ram_gb" type="number" min="0.1" max="4096" step="0.1" placeholder="32" /></label>
-        <label><span class="field-label">SSD (TB) <code>info.ssd_tb</code> <span class="field-hint">comma-separated</span></span><input name="ssd_tb" inputmode="decimal" placeholder="0.5, 1" /></label>
-        <label><span class="field-label">HDD (TB) <code>info.hdd_tb</code> <span class="field-hint">comma-separated</span></span><input name="hdd_tb" inputmode="decimal" placeholder="2" /></label>
+        <label><span class="field-label">SSD <code>info.ssd_tb</code> <span class="field-hint">comma-separated</span></span><span class="storage-input"><input name="ssd_tb" inputmode="decimal" placeholder="512, 1024" /><select name="ssd_unit" aria-label="SSD unit"><option value="gb">GB</option><option value="tb">TB</option></select></span></label>
+        <label><span class="field-label">HDD <code>info.hdd_tb</code> <span class="field-hint">comma-separated</span></span><span class="storage-input"><input name="hdd_tb" inputmode="decimal" placeholder="2, 4" /><select name="hdd_unit" aria-label="HDD unit"><option value="gb">GB</option><option value="tb" selected>TB</option></select></span></label>
       </div>
       <div class="extra-editor" id="extra-editor">
         <div><p class="eyebrow">additional info</p><p>Up to 10 short key/value pairs.</p></div>
@@ -94,6 +94,7 @@ const infoFields = [
   const value = (name: string) => (form.elements.namedItem(name) as HTMLInputElement | HTMLTextAreaElement).value.trim();
   const optional = (name: string, lines: string[]) => { const item = value(name); if (item) lines.push(`${name} = ${quote(item)}`); };
   const list = (name: string) => value(name).split(",").map((item) => item.trim()).filter(Boolean);
+  const selected = (name: string) => (form.elements.namedItem(name) as HTMLSelectElement).value;
   const isHttpsUrl = (item: string) => { try { return new URL(item).protocol === "https:"; } catch { return false; } };
   const showError = (message: string, input?: HTMLElement) => { error.textContent = message; error.hidden = false; error.scrollIntoView({ behavior: "smooth", block: "center" }); input?.focus(); };
   const clone = (template: HTMLTemplateElement) => template.content.cloneNode(true) as DocumentFragment;
@@ -164,8 +165,13 @@ const infoFields = [
     ["os", "kernel", "shell", "wm", "de", "cursor_theme", "terminal", "gpu", "theme", "logo"].forEach((name) => setValue(name, info[name]));
     setValue("fonts", textList(info.fonts).join(", "));
     setValue("ram_gb", numberText(info.ram_gb));
-    setValue("ssd_tb", textList(info.ssd_tb).join(", "));
-    setValue("hdd_tb", textList(info.hdd_tb).join(", "));
+    for (const name of ["ssd_tb", "hdd_tb"]) {
+      const values = textList(info[name]).map(Number);
+      const unit = form.elements.namedItem(`${name.replace("_tb", "")}_unit`) as HTMLSelectElement;
+      const useGb = values.length > 0 && values.every((item) => item < 1);
+      unit.value = useGb ? "gb" : "tb";
+      setValue(name, values.map((item) => useGb ? item * 1024 : item).join(", "));
+    }
     Object.entries(object(info.extra)).slice(0, 10).forEach(([key, item]) => {
       if (typeof item !== "string") return;
       addExtra();
@@ -209,7 +215,7 @@ const infoFields = [
     if (logo && !isHttpsUrl(logo)) return fail("Logo image must be an HTTPS URL.", form.elements.namedItem("logo") as HTMLInputElement);
     const fonts = list("fonts"); if (fonts.length) infoLines.push(`fonts = [${fonts.map(quote).join(", ")}]`);
     const ram = value("ram_gb"); if (ram) infoLines.push(`ram_gb = ${Number(ram)}`);
-    for (const name of ["ssd_tb", "hdd_tb"]) { const values = list(name); if (values.length) { if (values.some((item) => !Number.isFinite(Number(item)) || Number(item) <= 0)) return fail(`${name} must contain positive numbers.`); infoLines.push(`${name} = [${values.map(Number).join(", ")}]`); } }
+    for (const name of ["ssd_tb", "hdd_tb"]) { const values = list(name); if (values.length) { if (values.some((item) => !Number.isFinite(Number(item)) || Number(item) <= 0)) return fail(`${name} must contain positive numbers.`); const divisor = selected(`${name.replace("_tb", "")}_unit`) === "gb" ? 1024 : 1; infoLines.push(`${name} = [${values.map((item) => Number(item) / divisor).join(", ")}]`); } }
     if (infoLines.length) lines.push("", "[info]", ...infoLines);
     const extras = [...extraEditor.querySelectorAll<HTMLElement>(".repeat-row")].map((row) => [row.querySelector<HTMLInputElement>(".extra-key")!.value.trim(), row.querySelector<HTMLInputElement>(".extra-value")!.value.trim()] as const).filter(([key, item]) => key || item);
     if (extras.length) { if (extras.some(([key, item]) => !/^[a-zA-Z0-9_-]{1,40}$/.test(key) || !item)) return fail("Additional info needs a valid key and a value."); if (new Set(extras.map(([key]) => key)).size !== extras.length) return fail("Additional info keys must be unique."); lines.push("", "[info.extra]", ...extras.map(([key, item]) => `${key} = ${quote(item)}`)); }

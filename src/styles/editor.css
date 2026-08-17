@@ -27,3 +27,17 @@
   font-weight: 600;
   padding: .08em .32em;
 }
+
+.storage-input {
+  display: flex;
+  gap: .5rem;
+}
+
+.storage-input select {
+  background: #f0e8de;
+  border: 1px solid var(--line);
+  border-radius: 2px;
+  color: var(--ink);
+  font: inherit;
+  padding: .68rem .5rem;
+}
