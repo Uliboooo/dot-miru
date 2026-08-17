@@ -157,11 +157,11 @@ export function parseProfile(toml: string): Profile {
       ramGb: info.ram_gb,
       ssdTb: info.ssd_tb,
       hddTb: info.hdd_tb,
-      logo: info.logo,
+      logo: info.logo && canonicalizeSource(info.logo),
     },
     dotfiles: Object.entries(dotfiles)
       .filter(([, dotfile]) => !dotfile.hidden)
-      .map(([id, dotfile]) => ({ id, name: dotfile.name, desc: dotfile.desc, images: dotfile.images })),
+      .map(([id, dotfile]) => ({ id, name: dotfile.name, desc: dotfile.desc, images: dotfile.images.map(canonicalizeSource) })),
   };
 }
 

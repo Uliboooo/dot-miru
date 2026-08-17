@@ -259,9 +259,10 @@ const infoFields = [
     const github = value("github"), x = value("x");
     if (github || x) { lines.push("", "[sns]"); if (github) lines.push(`github = ${quote(github)}`); if (x) lines.push(`x = ${quote(x)}`); }
     const infoLines: string[] = [];
-    ["os", "kernel", "shell", "wm", "de", "cursor_theme", "terminal", "gpu", "theme", "logo"].forEach((name) => optional(name, infoLines));
+    ["os", "kernel", "shell", "wm", "de", "cursor_theme", "terminal", "gpu", "theme"].forEach((name) => optional(name, infoLines));
     const logo = value("logo");
     if (logo && !isHttpsUrl(logo)) return fail("Logo image must be an HTTPS URL.", form.elements.namedItem("logo") as HTMLInputElement);
+    if (logo) infoLines.push(`logo = ${quote(canonicalizeGistUrl(logo))}`);
     const fonts = list("fonts"); if (fonts.length) infoLines.push(`fonts = [${fonts.map(quote).join(", ")}]`);
     const ram = value("ram_gb"); if (ram) infoLines.push(`ram_gb = ${Number(ram)}`);
     for (const name of ["ssd_tb", "hdd_tb"]) { const values = list(name); if (values.length) { if (values.some((item) => !Number.isFinite(Number(item)) || Number(item) <= 0)) return fail(`${name} must contain positive numbers.`); const divisor = selected(`${name.replace("_tb", "")}_unit`) === "gb" ? 1024 : 1; infoLines.push(`${name} = [${values.map((item) => Number(item) / divisor).join(", ")}]`); } }
@@ -282,7 +283,7 @@ const infoFields = [
       const images = [...card.querySelectorAll<HTMLInputElement>(".image-url")].map((input) => input.value.trim()).filter(Boolean);
       if (images.some((image) => !isHttpsUrl(image))) return fail("Images must use public HTTPS URLs.", card.querySelector<HTMLInputElement>(".image-url")!);
       lines.push("", `[dotfiles.${id}]`, `name = ${quote(name)}`, `desc = ${quote(desc)}`);
-      if (images.length) lines.push(`images = [${images.map(quote).join(", ")}]`);
+      if (images.length) lines.push(`images = [${images.map(canonicalizeGistUrl).map(quote).join(", ")}]`);
     }
     latestToml = `${lines.join("\n")}\n`;
     const blob = new Blob([latestToml], { type: "application/toml" });

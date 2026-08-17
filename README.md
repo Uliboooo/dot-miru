@@ -61,6 +61,8 @@ Gist's **Raw** button may copy a revision-pinned URL. That URL is accepted and a
 
 Profile TOML changes appear within about one minute. If you replace an image without changing its URL, use a version query such as `?v=2` to bypass the image host and browser caches.
 
+Small public images may also live in a Gist. Paste the image's Raw URL into `logo` or `images`; revision-pinned Gist Raw URLs are automatically normalized to their stable latest-file form.
+
 ## Register a profile in the directory
 
 To have a profile listed at `/u/<slug>` and on the top-page directory, open a pull request adding an entry to [`src/data/profiles.toml`](https://github.com/Uliboooo/dot-miru/edit/main/src/data/profiles.toml):

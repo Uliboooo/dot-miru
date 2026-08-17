@@ -30,7 +30,7 @@ keyboard = "US ANSI"
 [dotfiles.nvim]
 name = "Neovim"
 desc = "Lua config"
-images = ["https://images.example/nvim.webp"]
+images = ["https://gist.githubusercontent.com/seli/abc/raw/revision/nvim.webp"]
 
 [dotfiles.private]
 name = "Private"
@@ -72,7 +72,7 @@ describe("profile TOML", () => {
     expect(profile.info?.gpu).toBe("AMD Radeon 780M");
     expect(profile.info?.extra).toEqual({ display: "2560×1600", keyboard: "US ANSI" });
     expect(profile.info?.ssdTb).toEqual([0.5, 1]);
-    expect(profile.dotfiles).toEqual([{ id: "nvim", name: "Neovim", desc: "Lua config", images: ["https://images.example/nvim.webp"] }]);
+    expect(profile.dotfiles).toEqual([{ id: "nvim", name: "Neovim", desc: "Lua config", images: ["https://gist.githubusercontent.com/seli/abc/raw/nvim.webp"] }]);
   });
 
   it("requires a name and accepts an optional HTTPS repository", () => {
