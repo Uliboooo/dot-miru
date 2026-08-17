@@ -72,9 +72,12 @@ const socialLinks = [
             {dotfile.images.length > 0 && (
               <div class="image-grid">
                 {dotfile.images.map((image, index) => (
-                  <button class="image-button" type="button" data-image={image} data-label={`${dotfile.name} screenshot ${index + 1}`}>
-                    <img src={image} alt={`${dotfile.name} screenshot ${index + 1}`} loading="lazy" />
-                  </button>
+                  <figure class="image-figure">
+                    <button class="image-button" type="button" data-image={image.url} data-label={image.alt || `${dotfile.name} screenshot ${index + 1}`}>
+                      <img src={image.url} alt={image.alt || `${dotfile.name} screenshot ${index + 1}`} loading="lazy" />
+                    </button>
+                    <figcaption>{image.alt || `${dotfile.name} screenshot ${index + 1}`}</figcaption>
+                  </figure>
                 ))}
               </div>
             )}

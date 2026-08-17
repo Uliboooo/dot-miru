@@ -9,7 +9,7 @@ export type Dotfile = {
   id: string;
   name: string;
   desc: string;
-  images: string[];
+  images: { url: string; alt: string }[];
 };
 
 export type Profile = {
@@ -110,7 +110,10 @@ const profileSchema = z.object({
       z.object({
         name: z.string().trim().min(1).max(100),
         desc: z.string().trim().min(1).max(5_000),
-        images: z.array(httpsUrl).max(20).default([]),
+        images: z.array(z.union([
+          httpsUrl,
+          z.object({ url: httpsUrl, alt: z.string().trim().max(300).default("") }),
+        ])).max(20).default([]),
         hidden: z.boolean().default(false),
       }),
     )
@@ -161,7 +164,14 @@ export function parseProfile(toml: string): Profile {
     },
     dotfiles: Object.entries(dotfiles)
       .filter(([, dotfile]) => !dotfile.hidden)
-      .map(([id, dotfile]) => ({ id, name: dotfile.name, desc: dotfile.desc, images: dotfile.images.map(canonicalizeSource) })),
+      .map(([id, dotfile]) => ({
+        id,
+        name: dotfile.name,
+        desc: dotfile.desc,
+        images: dotfile.images.map((image) => typeof image === "string"
+          ? { url: canonicalizeSource(image), alt: "" }
+          : { url: canonicalizeSource(image.url), alt: image.alt }),
+      })),
   };
 }
 

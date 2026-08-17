@@ -1,0 +1,9 @@
+.image-figure {
+  margin: 0;
+}
+
+.image-figure figcaption {
+  color: var(--muted);
+  font-size: .85rem;
+  margin-top: .45rem;
+}

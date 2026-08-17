@@ -71,11 +71,11 @@ const infoFields = [
       <label><span class="field-label">Name <code>name</code> *</span><input class="dotfile-name" required maxlength="100" placeholder="Neovim" /></label>
       <label class="editor-wide"><span class="field-label">Description <code>desc</code> *</span><textarea class="dotfile-desc" required maxlength="5000" placeholder="Describe this configuration."></textarea></label>
     </div>
-    <div class="image-editor"><div><p class="eyebrow">images <code>images</code></p><p>Public HTTPS URLs only.</p></div><div class="image-rows"></div><button class="secondary-button add-image" type="button">Add image URL</button></div>
+    <div class="image-editor"><div><p class="eyebrow">images <code>images</code></p><p>Public HTTPS URLs only. Alt text is shown below each image.</p></div><div class="image-rows"></div><button class="secondary-button add-image" type="button">Add image</button></div>
   </article>
 </template>
 
-<template id="image-template"><div class="repeat-row"><input class="image-url" type="url" placeholder="https://example.com/screenshot.webp" /><button class="text-button remove-row" type="button">Remove</button></div></template>
+<template id="image-template"><div class="repeat-row image-row"><input class="image-url" type="url" placeholder="https://example.com/screenshot.webp" /><input class="image-alt" maxlength="300" placeholder="Alt text shown below the image" /><button class="text-button remove-row" type="button">Remove</button></div></template>
 <template id="extra-template"><div class="repeat-row"><input class="extra-key" maxlength="40" placeholder="display" /><input class="extra-value" maxlength="200" placeholder="2560×1600" /><button class="text-button remove-row" type="button">Remove</button></div></template>
 
 <script>
@@ -115,15 +115,16 @@ const infoFields = [
   const clone = (template: HTMLTemplateElement) => template.content.cloneNode(true) as DocumentFragment;
   const attachRowRemoval = (row: HTMLElement) => row.querySelector<HTMLButtonElement>(".remove-row")?.addEventListener("click", () => row.remove());
 
-  function addImage(container: Element, image = "") {
+  function addImage(container: Element, image: { url: string; alt: string } = { url: "", alt: "" }) {
     const fragment = clone(imageTemplate);
     const row = fragment.firstElementChild as HTMLElement;
     attachRowRemoval(row);
-    row.querySelector<HTMLInputElement>(".image-url")!.value = image;
+    row.querySelector<HTMLInputElement>(".image-url")!.value = image.url;
+    row.querySelector<HTMLInputElement>(".image-alt")!.value = image.alt;
     container.append(fragment);
   }
 
-  function addDotfile(dotfile?: { id: string; name: string; desc: string; images: string[] }) {
+  function addDotfile(dotfile?: { id: string; name: string; desc: string; images: { url: string; alt: string }[] }) {
     const fragment = clone(dotfileTemplate);
     const card = fragment.firstElementChild as HTMLElement;
     card.querySelector<HTMLButtonElement>(".remove-dotfile")?.addEventListener("click", () => card.remove());
@@ -197,7 +198,12 @@ const infoFields = [
     Object.entries(object(profile.dotfiles)).forEach(([id, rawDotfile]) => {
       const dotfile = object(rawDotfile);
       if (dotfile.hidden === true || !text(dotfile.name) || !text(dotfile.desc)) return;
-      addDotfile({ id, name: text(dotfile.name), desc: text(dotfile.desc), images: textList(dotfile.images) });
+      const images = Array.isArray(dotfile.images) ? dotfile.images.flatMap((image) => {
+        if (typeof image === "string") return [{ url: image, alt: "" }];
+        const parsedImage = object(image);
+        return text(parsedImage.url) ? [{ url: text(parsedImage.url), alt: text(parsedImage.alt) }] : [];
+      }) : [];
+      addDotfile({ id, name: text(dotfile.name), desc: text(dotfile.desc), images });
     });
   }
 
@@ -280,10 +286,11 @@ const infoFields = [
       if (!name) return fail("Every dotfile needs a name.", nameInput);
       if (!desc) return fail("Every dotfile needs a description.", descInput);
       if (!/^[a-zA-Z0-9_-]+$/.test(id)) return fail("Each dotfile ID may contain only letters, numbers, _ and -.", idInput);
-      const images = [...card.querySelectorAll<HTMLInputElement>(".image-url")].map((input) => input.value.trim()).filter(Boolean);
-      if (images.some((image) => !isHttpsUrl(image))) return fail("Images must use public HTTPS URLs.", card.querySelector<HTMLInputElement>(".image-url")!);
+      const images = [...card.querySelectorAll<HTMLElement>(".image-row")].map((row) => ({ url: row.querySelector<HTMLInputElement>(".image-url")!.value.trim(), alt: row.querySelector<HTMLInputElement>(".image-alt")!.value.trim() })).filter((image) => image.url || image.alt);
+      if (images.some((image) => !isHttpsUrl(image.url))) return fail("Images must use public HTTPS URLs.", card.querySelector<HTMLInputElement>(".image-url")!);
+      if (images.some((image) => !image.alt)) return fail("Every image needs alt text.", card.querySelector<HTMLInputElement>(".image-alt")!);
       lines.push("", `[dotfiles.${id}]`, `name = ${quote(name)}`, `desc = ${quote(desc)}`);
-      if (images.length) lines.push(`images = [${images.map(canonicalizeGistUrl).map(quote).join(", ")}]`);
+      if (images.length) lines.push(`images = [${images.map((image) => `{ url = ${quote(canonicalizeGistUrl(image.url))}, alt = ${quote(image.alt)} }`).join(", ")}]`);
     }
     latestToml = `${lines.join("\n")}\n`;
     const blob = new Blob([latestToml], { type: "application/toml" });

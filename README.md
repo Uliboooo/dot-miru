@@ -42,7 +42,7 @@ display = "2560×1600"
 [dotfiles.nvim]
 name = "Neovim"
 desc = "Lua configuration for Neovim."
-images = ["https://example.com/nvim.webp"]
+images = [{ url = "https://example.com/nvim.webp", alt = "Neovim configuration" }]
 ```
 
 Only HTTPS raw URLs from `raw.githubusercontent.com` and `gist.githubusercontent.com` are accepted. A profile needs `name` and may provide `repository` (recommended), `summary`, `[sns]`, `[info]`, and `[dotfiles.<id>]` sections. `info` supports `os`, `kernel`, `shell`, `wm`, `de`, `cursor_theme`, `terminal`, `fonts`, `gpu`, `theme`, `ram_gb`, `ssd_tb`, `hdd_tb`, and `logo`. Use `[info.extra]` for up to 10 additional short string values; keys may contain only letters, numbers, `_`, and `-`.

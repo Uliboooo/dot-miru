@@ -42,6 +42,16 @@
   padding: .68rem .5rem;
 }
 
+.image-row {
+  grid-template-columns: 1fr 1fr auto;
+}
+
+@media (max-width: 620px) {
+  .image-row {
+    grid-template-columns: 1fr;
+  }
+}
+
 .editor-publish-note {
   color: var(--muted);
   font-size: .9rem;
