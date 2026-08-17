@@ -9,6 +9,8 @@ interface Props {
 const { title = "dot-miru" } = Astro.props;
 const locale = localeFromUrl(Astro.url);
 const isJapanese = locale === "ja";
+const description = isJapanese ? "dotfiles のための、小さく読みやすいプロフィールページ。" : "A small, readable home for dotfiles.";
+const siteUrl = "https://dot-miru.uliboooo.workers.dev";
 const toggleUrl = new URL(Astro.url);
 if (isJapanese) toggleUrl.searchParams.delete("lang");
 else toggleUrl.searchParams.set("lang", "ja");
@@ -21,7 +23,16 @@ const toggleHref = `${toggleUrl.pathname}${toggleUrl.search}${toggleUrl.hash}`;
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-    <meta name="description" content={isJapanese ? "dotfiles のための、小さく読みやすいプロフィールページ。" : "A small, readable home for dotfiles."} />
+    <meta name="description" content={description} />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={`${siteUrl}/og-image.png`} />
+    <meta property="og:image:alt" content="dot-miru — a place for dotfiles" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={`${siteUrl}/og-image.png`} />
     <title>{title}</title>
   </head>
   <body>
