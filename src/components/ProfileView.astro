@@ -1,0 +1,107 @@
+---
+import type { Profile } from "../lib/profile";
+
+interface Props {
+  profile: Profile;
+  source?: string;
+}
+
+const { profile, source } = Astro.props;
+const formatStorage = (value: number) => (value < 1 ? `${Math.round(value * 1024)} GB` : `${value} TB`);
+const socialId = (id: string) => id.replace(/^@/, "");
+const socialLinks = [
+  profile.sns?.github && { label: "GitHub", href: `https://github.com/${encodeURIComponent(socialId(profile.sns.github))}` },
+  profile.sns?.x && { label: "X", href: `https://x.com/${encodeURIComponent(socialId(profile.sns.x))}` },
+].filter(Boolean) as { label: string; href: string }[];
+---
+
+<article class="profile">
+  <section class="profile-hero">
+    {profile.info?.logo && <img class="profile-logo" src={profile.info.logo} alt="" />}
+    <div>
+      <p class="eyebrow">dotfiles profile</p>
+      <h1>{profile.name}</h1>
+      {profile.summary && <p class="summary">{profile.summary}</p>}
+      {(profile.repository || socialLinks.length > 0) && <div class="links">
+        {profile.repository && <a class="primary-link" href={profile.repository} target="_blank" rel="noreferrer">View repository <span aria-hidden="true">↗</span></a>}
+        {socialLinks.map((link) => <a href={link.href} target="_blank" rel="noreferrer">{link.label} ↗</a>)}
+      </div>}
+    </div>
+  </section>
+
+  {profile.info && (
+    <section class="machine" aria-labelledby="machine-title">
+      <p class="eyebrow" id="machine-title">machine</p>
+      <dl>
+        {profile.info.os && <div><dt>OS</dt><dd>{profile.info.os}</dd></div>}
+        {profile.info.host && <div><dt>Host</dt><dd>{profile.info.host}</dd></div>}
+        {profile.info.kernel && <div><dt>Kernel</dt><dd>{profile.info.kernel}</dd></div>}
+        {profile.info.shell && <div><dt>Shell</dt><dd>{profile.info.shell}</dd></div>}
+        {profile.info.wm && <div><dt>WM</dt><dd>{profile.info.wm}</dd></div>}
+        {profile.info.de && <div><dt>DE</dt><dd>{profile.info.de}</dd></div>}
+        {profile.info.cursorTheme && <div><dt>Cursor theme</dt><dd>{profile.info.cursorTheme}</dd></div>}
+        {profile.info.terminal && <div><dt>Terminal</dt><dd>{profile.info.terminal}</dd></div>}
+        {profile.info.fonts?.length && <div><dt>Fonts</dt><dd>{profile.info.fonts.join(", ")}</dd></div>}
+        {profile.info.gpu && <div><dt>GPU</dt><dd>{profile.info.gpu}</dd></div>}
+        {profile.info.theme && <div><dt>Theme</dt><dd>{profile.info.theme}</dd></div>}
+        {profile.info.ramGb && <div><dt>Memory</dt><dd>{profile.info.ramGb} GB</dd></div>}
+        {profile.info.ssdTb?.length && <div><dt>SSD</dt><dd>{profile.info.ssdTb.map(formatStorage).join(" + ")}</dd></div>}
+        {profile.info.hddTb?.length && <div><dt>HDD</dt><dd>{profile.info.hddTb.map(formatStorage).join(" + ")}</dd></div>}
+      </dl>
+      {profile.info.extra && Object.keys(profile.info.extra).length > 0 && (
+        <div class="extra-info">
+          <p class="eyebrow">additional info</p>
+          <dl>
+            {Object.entries(profile.info.extra).map(([key, value]) => <div><dt>{key}</dt><dd>{value}</dd></div>)}
+          </dl>
+        </div>
+      )}
+    </section>
+  )}
+
+  <section class="dotfiles" aria-labelledby="dotfiles-title">
+    <div class="section-heading"><p class="eyebrow" id="dotfiles-title">configuration</p><span>{profile.dotfiles.length} items</span></div>
+    {profile.dotfiles.length ? (
+      <div class="dotfile-list">
+        {profile.dotfiles.map((dotfile) => (
+          <article class="dotfile-card">
+            <h2>{dotfile.name}</h2>
+            <p>{dotfile.desc}</p>
+            {dotfile.images.length > 0 && (
+              <div class="image-grid">
+                {dotfile.images.map((image, index) => (
+                  <button class="image-button" type="button" data-image={image} data-label={`${dotfile.name} screenshot ${index + 1}`}>
+                    <img src={image} alt={`${dotfile.name} screenshot ${index + 1}`} loading="lazy" />
+                  </button>
+                ))}
+              </div>
+            )}
+          </article>
+        ))}
+      </div>
+    ) : <p class="empty">No public dotfiles have been added yet.</p>}
+  </section>
+  {source && <p class="source-note">Source: <a href={source} target="_blank" rel="noreferrer">raw TOML ↗</a></p>}
+</article>
+
+<dialog class="image-dialog" aria-label="Screenshot preview">
+  <button class="dialog-close" type="button" aria-label="Close preview">×</button>
+  <img alt="" />
+</dialog>
+
+<script>
+  const dialog = document.querySelector<HTMLDialogElement>(".image-dialog");
+  const preview = dialog?.querySelector("img");
+  document.querySelectorAll<HTMLButtonElement>(".image-button").forEach((button) => {
+    button.addEventListener("click", () => {
+      if (!dialog || !preview) return;
+      preview.src = button.dataset.image ?? "";
+      preview.alt = button.dataset.label ?? "Screenshot preview";
+      dialog.showModal();
+    });
+  });
+  dialog?.querySelector(".dialog-close")?.addEventListener("click", () => dialog.close());
+  dialog?.addEventListener("click", (event) => {
+    if (event.target === dialog) dialog.close();
+  });
+</script>

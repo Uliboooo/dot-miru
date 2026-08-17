@@ -1,0 +1,13 @@
+---
+import type { Profile } from "../lib/profile";
+
+interface Props { slug: string; profile?: Profile; }
+const { slug, profile } = Astro.props;
+---
+
+<a class="profile-card" href={`/u/${slug}`}>
+  <span class="eyebrow">profile</span>
+  <h2>{profile?.name ?? slug}</h2>
+  <p>{profile?.summary ?? "Open this dotfiles profile."}</p>
+  {profile?.info?.os && <span class="card-meta">{profile.info.os}</span>}
+</a>

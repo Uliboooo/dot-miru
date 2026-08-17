@@ -1,0 +1,28 @@
+---
+import "../styles/global.css";
+
+interface Props {
+  title?: string;
+}
+
+const { title = "dot-miru" } = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="A small, readable home for dotfiles." />
+    <title>{title}</title>
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="wordmark" href="/">dot-miru<span aria-hidden="true">.</span></a>
+      <span class="header-note">a place for dotfiles</span>
+      <a class="header-link" href="/editor">Create TOML</a>
+    </header>
+    <main><slot /></main>
+    <footer>Built from a TOML file.</footer>
+  </body>
+</html>

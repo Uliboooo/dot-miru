@@ -1,0 +1,45 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import ProfileCard from "../components/ProfileCard.astro";
+import ProfileView from "../components/ProfileView.astro";
+import SourceForm from "../components/SourceForm.astro";
+import { loadProfile, ProfileError } from "../lib/profile";
+import { registry } from "../lib/registry";
+
+export const prerender = false;
+
+const source = Astro.url.searchParams.get("source") ?? "";
+const directoryProfiles = await Promise.all(
+  registry.map(async (entry) => {
+    try {
+      return { entry, profile: await loadProfile(entry.source) };
+    } catch {
+      return { entry };
+    }
+  }),
+);
+let profile;
+let error: string | undefined;
+if (source) {
+  try { profile = await loadProfile(source); }
+  catch (cause) { error = cause instanceof ProfileError ? cause.message : "Something went wrong while opening this profile."; }
+}
+---
+
+<BaseLayout title={profile ? `${profile.name} — dot-miru` : "dot-miru"}>
+  {profile ? <ProfileView profile={profile} source={source} /> : (
+    <>
+      <section class="intro">
+        <p class="eyebrow">dotfiles, clearly presented</p>
+        <h1>A place for the tools that make your computer yours.</h1>
+        <p>dot-miru reads a public TOML file and turns it into a simple, shareable profile.</p>
+      </section>
+      <SourceForm source={source} />
+      {error && <section class="error" role="alert"><h2>Could not open this profile</h2><p>{error}</p></section>}
+      <section class="directory" aria-labelledby="directory-title">
+        <div class="section-heading"><div><p class="eyebrow">directory</p><h2 id="directory-title">Published profiles</h2></div><span>{registry.length} profiles</span></div>
+        {registry.length ? <div class="profile-grid">{directoryProfiles.map(({ entry, profile }) => <ProfileCard slug={entry.slug} profile={profile} />)}</div> : <p class="empty">No profiles are registered yet. Add one in <code>src/data/profiles.toml</code>.</p>}
+      </section>
+    </>
+  )}
+</BaseLayout>

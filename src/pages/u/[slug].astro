@@ -1,0 +1,19 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import ProfileView from "../../components/ProfileView.astro";
+import { findProfile } from "../../lib/registry";
+import { loadProfile, ProfileError } from "../../lib/profile";
+
+export const prerender = false;
+
+const entry = findProfile(Astro.params.slug ?? "");
+if (!entry) return Astro.redirect("/", 302);
+let profile;
+let error: string | undefined;
+try { profile = await loadProfile(entry.source); }
+catch (cause) { error = cause instanceof ProfileError ? cause.message : "Something went wrong while opening this profile."; }
+---
+
+<BaseLayout title={profile ? `${profile.name} — dot-miru` : "dot-miru"}>
+  {profile ? <ProfileView profile={profile} source={entry.source} /> : <section class="error" role="alert"><h1>Could not open this profile</h1><p>{error}</p><a href="/">Back to dot-miru</a></section>}
+</BaseLayout>

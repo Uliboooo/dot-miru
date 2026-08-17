@@ -1,0 +1,7 @@
+# Add one [[profile]] entry for every profile published at /u/<slug>.
+# The source must be an HTTPS raw URL from raw.githubusercontent.com or
+# gist.githubusercontent.com.
+#
+# [[profile]]
+# slug = "example"
+# source = "https://raw.githubusercontent.com/example/dotfiles/main/dot-miru.toml"

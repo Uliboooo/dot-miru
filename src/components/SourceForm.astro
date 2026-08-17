@@ -1,0 +1,12 @@
+---
+const { source = "" } = Astro.props;
+---
+
+<form class="source-form" method="get" action="/">
+  <label for="source">Open a public dotfiles TOML</label>
+  <div class="source-controls">
+    <input id="source" name="source" type="url" value={source} placeholder="https://raw.githubusercontent.com/.../dot-miru.toml" required />
+    <button type="submit">Open profile</button>
+  </div>
+  <p>GitHub and Gist raw HTTPS URLs only.</p>
+</form>
