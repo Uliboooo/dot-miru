@@ -2,6 +2,10 @@
 # The source must be an HTTPS raw URL from raw.githubusercontent.com or
 # gist.githubusercontent.com.
 #
+# [[profile]] エントリを1つ追加してください。
+# ソースは、raw.githubusercontent.com または gist.githubusercontent.com の HTTPS 生 URL でなければなりません。
+#
+# = Example
 # [[profile]]
 # slug = "example"
 # source = "https://raw.githubusercontent.com/example/dotfiles/main/dot-miru.toml"
