@@ -5,117 +5,433 @@ import "../styles/editor.css";
 
 const isJapanese = localeFromUrl(Astro.url) === "ja";
 const infoFields = [
-  ["os", "OS"], ["kernel", isJapanese ? "カーネル" : "Kernel"], ["shell", isJapanese ? "シェル" : "Shell"],
-  ["wm", isJapanese ? "ウィンドウマネージャー" : "Window manager"], ["de", isJapanese ? "デスクトップ環境" : "Desktop environment"], ["cursor_theme", isJapanese ? "カーソルテーマ" : "Cursor theme"],
-  ["terminal", isJapanese ? "ターミナル" : "Terminal"], ["cpu", "CPU"], ["gpu", "GPU"], ["theme", isJapanese ? "テーマ" : "Theme"], ["logo", isJapanese ? "ロゴ画像 URL" : "Logo image URL"],
+  ["os", "OS"],
+  ["kernel", isJapanese ? "カーネル" : "Kernel"],
+  ["shell", isJapanese ? "シェル" : "Shell"],
+  ["wm", isJapanese ? "ウィンドウマネージャー" : "Window manager"],
+  ["de", isJapanese ? "デスクトップ環境" : "Desktop environment"],
+  ["cursor_theme", isJapanese ? "カーソルテーマ" : "Cursor theme"],
+  ["terminal", isJapanese ? "ターミナル" : "Terminal"],
+  ["cpu", "CPU"],
+  ["gpu", "GPU"],
+  ["theme", isJapanese ? "テーマ" : "Theme"],
+  ["logo", isJapanese ? "ロゴ画像 URL" : "Logo image URL"],
 ];
 ---
 
 <BaseLayout title="TOML editor — dot-miru">
   <section class="editor-intro">
     <p class="eyebrow">TOML editor</p>
-    <h1>{isJapanese ? "dotfiles プロフィールを作る。" : "Make your dotfiles profile."}</h1>
-    <p>{isJapanese ? <>公開したい項目を入力して、すぐに使える <code>dot-miru.toml</code> をダウンロードします。画像は公開 HTTPS URL で指定します。</> : <>Fill in what you want to publish, then download a ready-to-use <code>dot-miru.toml</code>. Images are linked by public HTTPS URL.</>}</p>
+    <h1>
+      {
+        isJapanese
+          ? "dotfiles プロフィールを作る。"
+          : "Make your dotfiles profile."
+      }
+    </h1>
+    <p>
+      {
+        isJapanese ? (
+          <>
+            公開したい項目を入力して、すぐに使える <code>dot-miru.toml</code>{" "}
+            をダウンロードします。画像は公開 HTTPS URL で指定します。
+          </>
+        ) : (
+          <>
+            Fill in what you want to publish, then download a ready-to-use{" "}
+            <code>dot-miru.toml</code>. Images are linked by public HTTPS URL.
+          </>
+        )
+      }
+    </p>
   </section>
 
   <form class="editor-form" id="toml-editor" novalidate>
     <section class="editor-section editor-load">
-      <div class="editor-section-heading"><p class="eyebrow">{isJapanese ? "TOML を読み込む" : "load TOML"}</p><span>{isJapanese ? "現在のフォーム内容を置き換えます" : "Replace the current form contents"}</span></div>
-      <label class="file-input"><input id="toml-file" type="file" accept=".toml,text/plain,application/toml" /><span class="file-button">{isJapanese ? "ファイルを選択…" : "Browse…"}</span><span id="toml-file-name">{isJapanese ? <><code>dot-miru.toml</code> を選択</> : <>Choose a <code>dot-miru.toml</code> file</>}</span></label>
+      <div class="editor-section-heading">
+        <p class="eyebrow">
+          {isJapanese ? "TOML を読み込む" : "load TOML"}
+        </p><span
+          >{
+            isJapanese
+              ? "現在のフォーム内容を置き換えます"
+              : "Replace the current form contents"
+          }</span>
+      </div>
+      <label class="file-input"
+        ><input
+          id="toml-file"
+          type="file"
+          accept=".toml,text/plain,application/toml"
+        /><span class="file-button"
+          >{isJapanese ? "ファイルを選択…" : "Browse…"}</span
+        ><span id="toml-file-name"
+          >{
+            isJapanese ? (
+              <>
+                <code>dot-miru.toml</code> を選択
+              </>
+            ) : (
+              <>
+                Choose a <code>dot-miru.toml</code> file
+              </>
+            )
+          }</span
+        ></label
+      >
     </section>
 
     <section class="editor-section">
-      <div class="editor-section-heading"><p class="eyebrow">{isJapanese ? "プロフィール" : "profile"}</p><span>{isJapanese ? "* は必須項目です" : "Required fields marked *"}</span></div>
+      <div class="editor-section-heading">
+        <p class="eyebrow">{isJapanese ? "プロフィール" : "profile"}</p><span
+          >{isJapanese ? "* は必須項目です" : "Required fields marked *"}</span>
+      </div>
       <div class="editor-grid">
-        <label><span class="field-label">{isJapanese ? "表示名" : "Display name"} <code>name</code> *</span><input name="name" required maxlength="100" placeholder={isJapanese ? "あなたの名前" : "Your name"} /></label>
-        <label><span class="field-label">{isJapanese ? "リポジトリ URL" : "Repository URL"} <code>repository</code> <span class="field-hint">{isJapanese ? "推奨" : "recommended"}</span></span><input name="repository" type="url" placeholder="https://github.com/you/dotfiles" /></label>
-        <label class="editor-wide"><span class="field-label">{isJapanese ? "紹介" : "Summary"} <code>summary</code></span><textarea name="summary" maxlength="2000" placeholder={isJapanese ? "セットアップの短い紹介。" : "A short introduction to your setup."}></textarea></label>
-        <label><span class="field-label">GitHub ID <code>sns.github</code> <span class="field-hint">e.g. @octocat</span></span><input name="github" maxlength="100" placeholder="@octocat" /></label>
-        <label><span class="field-label">X ID <code>sns.x</code> <span class="field-hint">e.g. @dot_miru</span></span><input name="x" maxlength="100" placeholder="@dot_miru" /></label>
+        <label
+          ><span class="field-label"
+            >{isJapanese ? "表示名" : "Display name"} <code>name</code> *</span
+          ><input
+            name="name"
+            required
+            maxlength="100"
+            placeholder={isJapanese ? "あなたの名前" : "Your name"}
+          /></label
+        >
+        <label
+          ><span class="field-label"
+            >{isJapanese ? "リポジトリ URL" : "Repository URL"}
+            <code>repository</code>
+            <span class="field-hint">{isJapanese ? "推奨" : "recommended"}</span
+            ></span
+          ><input
+            name="repository"
+            type="url"
+            placeholder="https://github.com/you/dotfiles"
+          /></label
+        >
+        <label class="editor-wide"
+          ><span class="field-label"
+            >{isJapanese ? "紹介" : "Summary"} <code>summary</code></span
+          ><textarea
+            name="summary"
+            maxlength="2000"
+            placeholder={isJapanese
+              ? "セットアップの短い紹介。"
+              : "A short introduction to your setup."}></textarea></label
+        >
+        <label
+          ><span class="field-label"
+            >GitHub ID <code>sns.github</code>
+            <span class="field-hint">e.g. @octocat</span></span
+          ><input name="github" maxlength="100" placeholder="@octocat" /></label
+        >
+        <label
+          ><span class="field-label"
+            >X ID <code>sns.x</code>
+            <span class="field-hint">e.g. @dot_miru</span></span
+          ><input name="x" maxlength="100" placeholder="@dot_miru" /></label
+        >
       </div>
     </section>
 
     <section class="editor-section">
-      <div class="editor-section-heading"><p class="eyebrow">{isJapanese ? "マシン" : "machine"}</p><span>{isJapanese ? "すべて任意です" : "Everything is optional"}</span></div>
+      <div class="editor-section-heading">
+        <p class="eyebrow">{isJapanese ? "マシン" : "machine"}</p><span
+          >{isJapanese ? "すべて任意です" : "Everything is optional"}</span>
+      </div>
       <div class="editor-grid">
-        {infoFields.map(([name, label]) => <label><span class="field-label">{label} <code>info.{name}</code></span><input name={name} type={name === "logo" ? "url" : "text"} maxlength="100" placeholder={name === "logo" ? "https://…" : undefined} /></label>)}
-        <label><span class="field-label">{isJapanese ? "フォント" : "Fonts"} <code>info.fonts</code> <span class="field-hint">{isJapanese ? "カンマ区切り" : "comma-separated"}</span></span><input name="fonts" maxlength="2000" placeholder="Iosevka, Noto Sans JP" /></label>
-        <label><span class="field-label">{isJapanese ? "メモリ (GB)" : "Memory (GB)"} <code>info.ram_gb</code></span><input name="ram_gb" type="number" min="0.1" max="4096" step="0.1" placeholder="32" /></label>
-        <label><span class="field-label">SSD <code>info.ssd_tb</code> <span class="field-hint">comma-separated</span></span><span class="storage-input"><input name="ssd_tb" inputmode="decimal" placeholder="512, 1024" /><select name="ssd_unit" aria-label="SSD unit"><option value="gb">GB</option><option value="tb">TB</option></select></span></label>
-        <label><span class="field-label">HDD <code>info.hdd_tb</code> <span class="field-hint">comma-separated</span></span><span class="storage-input"><input name="hdd_tb" inputmode="decimal" placeholder="2, 4" /><select name="hdd_unit" aria-label="HDD unit"><option value="gb">GB</option><option value="tb" selected>TB</option></select></span></label>
+        {
+          infoFields.map(([name, label]) => (
+            <label>
+              <>
+                <span class="field-label">
+                  {label} <code>info.{name}</code>
+                </span>
+                <input
+                  name={name}
+                  type={name === "logo" ? "url" : "text"}
+                  maxlength="100"
+                  placeholder={name === "logo" ? "https://…" : undefined}
+                />
+              </>
+            </label>
+          ))
+        }
+        <label
+          ><span class="field-label"
+            >{isJapanese ? "フォント" : "Fonts"}
+            <code>info.fonts</code>
+            <span class="field-hint"
+              >{isJapanese ? "カンマ区切り" : "comma-separated"}</span
+            ></span
+          ><input
+            name="fonts"
+            maxlength="2000"
+            placeholder="Iosevka, Noto Sans JP"
+          /></label
+        >
+        <label
+          ><span class="field-label"
+            >{isJapanese ? "メモリ (GB)" : "Memory (GB)"}
+            <code>info.ram_gb</code></span
+          ><input
+            name="ram_gb"
+            type="number"
+            min="0.1"
+            max="4096"
+            step="0.1"
+            placeholder="32"
+          /></label
+        >
+        <label
+          ><span class="field-label"
+            >SSD <code>info.ssd_tb</code>
+            <span class="field-hint">comma-separated</span></span
+          ><span class="storage-input"
+            ><input
+              name="ssd_tb"
+              inputmode="decimal"
+              placeholder="512, 1024"
+            /><select name="ssd_unit" aria-label="SSD unit"
+              ><option value="gb">GB</option><option value="tb">TB</option
+              ></select
+            ></span
+          ></label
+        >
+        <label
+          ><span class="field-label"
+            >HDD <code>info.hdd_tb</code>
+            <span class="field-hint">comma-separated</span></span
+          ><span class="storage-input"
+            ><input
+              name="hdd_tb"
+              inputmode="decimal"
+              placeholder="2, 4"
+            /><select name="hdd_unit" aria-label="HDD unit"
+              ><option value="gb">GB</option><option value="tb" selected
+                >TB</option
+              ></select
+            ></span
+          ></label
+        >
       </div>
       <div class="extra-editor" id="extra-editor">
-        <div><p class="eyebrow">additional info</p><p>Up to 10 short key/value pairs.</p></div>
+        <div>
+          <p class="eyebrow">additional info</p><p>
+            Up to 10 short key/value pairs.
+          </p>
+        </div>
         <div class="extra-rows"></div>
-        <button class="secondary-button add-extra" type="button">Add additional info</button>
+        <button class="secondary-button add-extra" type="button"
+          >Add additional info</button
+        >
       </div>
     </section>
 
     <section class="editor-section">
-      <div class="editor-section-heading"><p class="eyebrow">{isJapanese ? "設定" : "configuration"}</p><span>{isJapanese ? "公開 dotfiles と画像 URL を追加" : "Add public dotfiles and image URLs"}</span></div>
+      <div class="editor-section-heading">
+        <p class="eyebrow">{isJapanese ? "設定" : "configuration"}</p><span
+          >{
+            isJapanese
+              ? "公開 dotfiles と画像 URL を追加"
+              : "Add public dotfiles and image URLs"
+          }</span>
+      </div>
       <div id="dotfile-editors"></div>
-      <button class="secondary-button" id="add-dotfile" type="button">{isJapanese ? "dotfile を追加" : "Add dotfile"}</button>
+      <button class="secondary-button" id="add-dotfile" type="button"
+        >{isJapanese ? "dotfile を追加" : "Add dotfile"}</button
+      >
     </section>
 
     <p class="editor-error" id="editor-error" role="alert" hidden></p>
-    <div class="editor-actions"><button class="primary-link" type="submit">{isJapanese ? "dot-miru.toml をダウンロード" : "Download dot-miru.toml"}</button><button class="secondary-button" id="publish-gist" type="button">{isJapanese ? "Gist に公開" : "Publish via Gist"}</button><button class="secondary-button" id="submit-profile" type="button">{isJapanese ? "プロフィールを掲載申請" : "Submit profile PR"}</button><a href={isJapanese ? "/?lang=ja" : "/"}>{isJapanese ? "ディレクトリに戻る" : "Back to directory"}</a></div>
-    <p class="editor-publish-note" id="editor-publish-note" role="status" hidden></p>
+    <div class="editor-actions">
+      <button class="primary-link" type="submit"
+        >{
+          isJapanese ? "dot-miru.toml をダウンロード" : "Download dot-miru.toml"
+        }</button
+      ><button class="secondary-button" id="publish-gist" type="button"
+        >{isJapanese ? "Gist に公開" : "Publish via Gist"}</button
+      ><button class="secondary-button" id="submit-profile" type="button"
+        >{isJapanese ? "プロフィールを掲載申請" : "Submit profile PR"}</button
+      ><a href={isJapanese ? "/?lang=ja" : "/"}
+        >{isJapanese ? "ディレクトリに戻る" : "Back to directory"}</a>
+    </div>
+    <p
+      class="editor-publish-note"
+      id="editor-publish-note"
+      role="status"
+      hidden
+    >
+    </p>
   </form>
 </BaseLayout>
 
 <template id="dotfile-template">
   <article class="dotfile-editor">
-    <div class="editor-card-heading"><h2>Dotfile</h2><button class="text-button remove-dotfile" type="button">Remove</button></div>
-    <div class="editor-grid">
-      <label><span class="field-label">ID <code>dotfiles.&lt;id&gt;</code> * <span class="field-hint">letters, numbers, _ and -</span></span><input class="dotfile-id" required maxlength="100" placeholder="nvim" /></label>
-      <label><span class="field-label">Name <code>name</code> *</span><input class="dotfile-name" required maxlength="100" placeholder="Neovim" /></label>
-      <label class="editor-wide"><span class="field-label">Description <code>desc</code> *</span><textarea class="dotfile-desc" required maxlength="5000" placeholder="Describe this configuration."></textarea></label>
+    <div class="editor-card-heading">
+      <h2>Dotfile</h2><button class="text-button remove-dotfile" type="button"
+        >Remove</button>
     </div>
-    <div class="image-editor"><div><p class="eyebrow">images <code>images</code></p><p>Public HTTPS URLs only. Alt text is shown below each image.</p></div><div class="image-rows"></div><button class="secondary-button add-image" type="button">Add image</button></div>
+    <div class="editor-grid">
+      <label
+        ><span class="field-label"
+          >ID <code>dotfiles.&lt;id&gt;</code> * <span class="field-hint"
+            >letters, numbers, _ and -</span
+          ></span
+        ><input
+          class="dotfile-id"
+          required
+          maxlength="100"
+          placeholder="nvim"
+        /></label
+      >
+      <label
+        ><span class="field-label">Name <code>name</code> *</span><input
+          class="dotfile-name"
+          required
+          maxlength="100"
+          placeholder="Neovim"
+        /></label
+      >
+      <label class="editor-wide"
+        ><span class="field-label">Description <code>desc</code> *</span
+        ><textarea
+          class="dotfile-desc"
+          required
+          maxlength="5000"
+          placeholder="Describe this configuration."></textarea></label
+      >
+    </div>
+    <div class="image-editor">
+      <div>
+        <p class="eyebrow">images <code>images</code></p><p>
+          Public HTTPS URLs only. Alt text is shown below each image.
+        </p>
+      </div><div class="image-rows"></div><button
+        class="secondary-button add-image"
+        type="button">Add image</button>
+    </div>
   </article>
 </template>
 
-<template id="image-template"><div class="repeat-row image-row"><input class="image-url" type="url" placeholder="https://example.com/screenshot.webp" /><input class="image-alt" maxlength="300" placeholder="Alt text shown below the image" /><button class="text-button remove-row" type="button">Remove</button></div></template>
-<template id="extra-template"><div class="repeat-row"><input class="extra-key" maxlength="40" placeholder="display" /><input class="extra-value" maxlength="200" placeholder="2560×1600" /><button class="text-button remove-row" type="button">Remove</button></div></template>
+<template id="image-template"
+  ><div class="repeat-row image-row">
+    <input
+      class="image-url"
+      type="url"
+      placeholder="https://example.com/screenshot.webp"
+    /><input
+      class="image-alt"
+      maxlength="300"
+      placeholder="Alt text shown below the image"
+    /><button class="text-button remove-row" type="button">Remove</button>
+  </div></template
+>
+<template id="extra-template"
+  ><div class="repeat-row">
+    <input class="extra-key" maxlength="40" placeholder="display" /><input
+      class="extra-value"
+      maxlength="200"
+      placeholder="2560×1600"
+    /><button class="text-button remove-row" type="button">Remove</button>
+  </div></template
+>
 
 <script>
   import { parse } from "smol-toml";
 
   const form = document.querySelector<HTMLFormElement>("#toml-editor")!;
   const error = document.querySelector<HTMLParagraphElement>("#editor-error")!;
-  const dotfileEditors = document.querySelector<HTMLDivElement>("#dotfile-editors")!;
-  const dotfileTemplate = document.querySelector<HTMLTemplateElement>("#dotfile-template")!;
-  const imageTemplate = document.querySelector<HTMLTemplateElement>("#image-template")!;
+  const dotfileEditors =
+    document.querySelector<HTMLDivElement>("#dotfile-editors")!;
+  const dotfileTemplate =
+    document.querySelector<HTMLTemplateElement>("#dotfile-template")!;
+  const imageTemplate =
+    document.querySelector<HTMLTemplateElement>("#image-template")!;
   const extraEditor = document.querySelector<HTMLDivElement>("#extra-editor")!;
-  const extraTemplate = document.querySelector<HTMLTemplateElement>("#extra-template")!;
+  const extraTemplate =
+    document.querySelector<HTMLTemplateElement>("#extra-template")!;
   const fileInput = document.querySelector<HTMLInputElement>("#toml-file")!;
   const fileName = document.querySelector<HTMLElement>("#toml-file-name")!;
-  const publishNote = document.querySelector<HTMLParagraphElement>("#editor-publish-note")!;
+  const publishNote = document.querySelector<HTMLParagraphElement>(
+    "#editor-publish-note",
+  )!;
   let latestToml = "";
 
   const quote = (value: string) => JSON.stringify(value);
-  const value = (name: string) => (form.elements.namedItem(name) as HTMLInputElement | HTMLTextAreaElement).value.trim();
-  const optional = (name: string, lines: string[]) => { const item = value(name); if (item) lines.push(`${name} = ${quote(item)}`); };
-  const list = (name: string) => value(name).split(",").map((item) => item.trim()).filter(Boolean);
-  const selected = (name: string) => (form.elements.namedItem(name) as HTMLSelectElement).value;
-  const isHttpsUrl = (item: string) => { try { return new URL(item).protocol === "https:"; } catch { return false; } };
-  const isRawTomlUrl = (item: string) => { try { const url = new URL(item); return url.protocol === "https:" && ["raw.githubusercontent.com", "gist.githubusercontent.com"].includes(url.hostname) && url.pathname.endsWith(".toml"); } catch { return false; } };
+  const value = (name: string) =>
+    (
+      form.elements.namedItem(name) as HTMLInputElement | HTMLTextAreaElement
+    ).value.trim();
+  const optional = (name: string, lines: string[]) => {
+    const item = value(name);
+    if (item) lines.push(`${name} = ${quote(item)}`);
+  };
+  const list = (name: string) =>
+    value(name)
+      .split(",")
+      .map((item) => item.trim())
+      .filter(Boolean);
+  const selected = (name: string) =>
+    (form.elements.namedItem(name) as HTMLSelectElement).value;
+  const isHttpsUrl = (item: string) => {
+    try {
+      return new URL(item).protocol === "https:";
+    } catch {
+      return false;
+    }
+  };
+  const isRawTomlUrl = (item: string) => {
+    try {
+      const url = new URL(item);
+      return (
+        url.protocol === "https:" &&
+        ["raw.githubusercontent.com", "gist.githubusercontent.com"].includes(
+          url.hostname,
+        ) &&
+        url.pathname.endsWith(".toml")
+      );
+    } catch {
+      return false;
+    }
+  };
   const canonicalizeGistUrl = (item: string) => {
     const url = new URL(item);
     const parts = url.pathname.split("/").filter(Boolean);
-    if (url.hostname === "gist.githubusercontent.com" && parts.length >= 5 && parts[2] === "raw") {
+    if (
+      url.hostname === "gist.githubusercontent.com" &&
+      parts.length >= 5 &&
+      parts[2] === "raw"
+    ) {
       url.pathname = `/${parts[0]}/${parts[1]}/raw/${parts.slice(4).join("/")}`;
       url.search = "";
       url.hash = "";
     }
     return url.toString();
   };
-  const slugify = (item: string) => item.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") || "your-name";
-  const showError = (message: string, input?: HTMLElement) => { error.textContent = message; error.hidden = false; error.scrollIntoView({ behavior: "smooth", block: "center" }); input?.focus(); };
-  const clone = (template: HTMLTemplateElement) => template.content.cloneNode(true) as DocumentFragment;
-  const attachRowRemoval = (row: HTMLElement) => row.querySelector<HTMLButtonElement>(".remove-row")?.addEventListener("click", () => row.remove());
+  const slugify = (item: string) =>
+    item
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "") || "your-name";
+  const showError = (message: string, input?: HTMLElement) => {
+    error.textContent = message;
+    error.hidden = false;
+    error.scrollIntoView({ behavior: "smooth", block: "center" });
+    input?.focus();
+  };
+  const clone = (template: HTMLTemplateElement) =>
+    template.content.cloneNode(true) as DocumentFragment;
+  const attachRowRemoval = (row: HTMLElement) =>
+    row
+      .querySelector<HTMLButtonElement>(".remove-row")
+      ?.addEventListener("click", () => row.remove());
 
-  function addImage(container: Element, image: { url: string; alt: string } = { url: "", alt: "" }) {
+  function addImage(
+    container: Element,
+    image: { url: string; alt: string } = { url: "", alt: "" },
+  ) {
     const fragment = clone(imageTemplate);
     const row = fragment.firstElementChild as HTMLElement;
     attachRowRemoval(row);
@@ -124,16 +440,27 @@ const infoFields = [
     container.append(fragment);
   }
 
-  function addDotfile(dotfile?: { id: string; name: string; desc: string; images: { url: string; alt: string }[] }) {
+  function addDotfile(dotfile?: {
+    id: string;
+    name: string;
+    desc: string;
+    images: { url: string; alt: string }[];
+  }) {
     const fragment = clone(dotfileTemplate);
     const card = fragment.firstElementChild as HTMLElement;
-    card.querySelector<HTMLButtonElement>(".remove-dotfile")?.addEventListener("click", () => card.remove());
+    card
+      .querySelector<HTMLButtonElement>(".remove-dotfile")
+      ?.addEventListener("click", () => card.remove());
     const rows = card.querySelector(".image-rows")!;
-    card.querySelector<HTMLButtonElement>(".add-image")?.addEventListener("click", () => addImage(rows));
+    card
+      .querySelector<HTMLButtonElement>(".add-image")
+      ?.addEventListener("click", () => addImage(rows));
     if (dotfile) {
       card.querySelector<HTMLInputElement>(".dotfile-id")!.value = dotfile.id;
-      card.querySelector<HTMLInputElement>(".dotfile-name")!.value = dotfile.name;
-      card.querySelector<HTMLTextAreaElement>(".dotfile-desc")!.value = dotfile.desc;
+      card.querySelector<HTMLInputElement>(".dotfile-name")!.value =
+        dotfile.name;
+      card.querySelector<HTMLTextAreaElement>(".dotfile-desc")!.value =
+        dotfile.desc;
       dotfile.images.forEach((image) => addImage(rows, image));
     } else addImage(rows);
     dotfileEditors.append(fragment);
@@ -147,11 +474,27 @@ const infoFields = [
     rows.append(fragment);
   }
 
-  const object = (input: unknown): Record<string, unknown> => input && typeof input === "object" && !Array.isArray(input) ? input as Record<string, unknown> : {};
-  const text = (input: unknown) => typeof input === "string" ? input : "";
-  const numberText = (input: unknown) => typeof input === "number" ? String(input) : "";
-  const textList = (input: unknown) => Array.isArray(input) ? input.filter((item): item is string | number => typeof item === "string" || typeof item === "number").map(String) : [];
-  const setValue = (name: string, input: unknown) => { const field = form.elements.namedItem(name) as HTMLInputElement | HTMLTextAreaElement | null; if (field) field.value = text(input); };
+  const object = (input: unknown): Record<string, unknown> =>
+    input && typeof input === "object" && !Array.isArray(input)
+      ? (input as Record<string, unknown>)
+      : {};
+  const text = (input: unknown) => (typeof input === "string" ? input : "");
+  const numberText = (input: unknown) =>
+    typeof input === "number" ? String(input) : "";
+  const textList = (input: unknown) =>
+    Array.isArray(input)
+      ? input
+          .filter(
+            (item): item is string | number =>
+              typeof item === "string" || typeof item === "number",
+          )
+          .map(String)
+      : [];
+  const setValue = (name: string, input: unknown) => {
+    const field = form.elements.namedItem(name) as
+      HTMLInputElement | HTMLTextAreaElement | null;
+    if (field) field.value = text(input);
+  };
 
   function loadToml(content: string) {
     let profile: Record<string, unknown>;
@@ -178,71 +521,156 @@ const infoFields = [
     setValue("github", sns.github);
     setValue("x", sns.x);
     const info = object(profile.info);
-    ["os", "kernel", "shell", "wm", "de", "cursor_theme", "terminal", "cpu", "gpu", "theme", "logo"].forEach((name) => setValue(name, info[name]));
+    [
+      "os",
+      "kernel",
+      "shell",
+      "wm",
+      "de",
+      "cursor_theme",
+      "terminal",
+      "cpu",
+      "gpu",
+      "theme",
+      "logo",
+    ].forEach((name) => setValue(name, info[name]));
     setValue("fonts", textList(info.fonts).join(", "));
     setValue("ram_gb", numberText(info.ram_gb));
     for (const name of ["ssd_tb", "hdd_tb"]) {
       const values = textList(info[name]).map(Number);
-      const unit = form.elements.namedItem(`${name.replace("_tb", "")}_unit`) as HTMLSelectElement;
+      const unit = form.elements.namedItem(
+        `${name.replace("_tb", "")}_unit`,
+      ) as HTMLSelectElement;
       const useGb = values.length > 0 && values.every((item) => item < 1);
       unit.value = useGb ? "gb" : "tb";
-      setValue(name, values.map((item) => useGb ? item * 1024 : item).join(", "));
+      setValue(
+        name,
+        values.map((item) => (useGb ? item * 1024 : item)).join(", "),
+      );
     }
-    Object.entries(object(info.extra)).slice(0, 10).forEach(([key, item]) => {
-      if (typeof item !== "string") return;
-      addExtra();
-      const row = extraEditor.querySelector<HTMLElement>(".extra-rows")!.lastElementChild!;
-      row.querySelector<HTMLInputElement>(".extra-key")!.value = key;
-      row.querySelector<HTMLInputElement>(".extra-value")!.value = item;
-    });
+    Object.entries(object(info.extra))
+      .slice(0, 10)
+      .forEach(([key, item]) => {
+        if (typeof item !== "string") return;
+        addExtra();
+        const row =
+          extraEditor.querySelector<HTMLElement>(
+            ".extra-rows",
+          )!.lastElementChild!;
+        row.querySelector<HTMLInputElement>(".extra-key")!.value = key;
+        row.querySelector<HTMLInputElement>(".extra-value")!.value = item;
+      });
     Object.entries(object(profile.dotfiles)).forEach(([id, rawDotfile]) => {
       const dotfile = object(rawDotfile);
-      if (dotfile.hidden === true || !text(dotfile.name) || !text(dotfile.desc)) return;
-      const images = Array.isArray(dotfile.images) ? dotfile.images.flatMap((image) => {
-        if (typeof image === "string") return [{ url: image, alt: "" }];
-        const parsedImage = object(image);
-        return text(parsedImage.url) ? [{ url: text(parsedImage.url), alt: text(parsedImage.alt) }] : [];
-      }) : [];
-      addDotfile({ id, name: text(dotfile.name), desc: text(dotfile.desc), images });
+      if (dotfile.hidden === true || !text(dotfile.name) || !text(dotfile.desc))
+        return;
+      const images = Array.isArray(dotfile.images)
+        ? dotfile.images.flatMap((image) => {
+            if (typeof image === "string") return [{ url: image, alt: "" }];
+            const parsedImage = object(image);
+            return text(parsedImage.url)
+              ? [{ url: text(parsedImage.url), alt: text(parsedImage.alt) }]
+              : [];
+          })
+        : [];
+      addDotfile({
+        id,
+        name: text(dotfile.name),
+        desc: text(dotfile.desc),
+        images,
+      });
     });
   }
 
-  document.querySelector<HTMLButtonElement>("#add-dotfile")?.addEventListener("click", () => addDotfile());
-  extraEditor.querySelector<HTMLButtonElement>(".add-extra")?.addEventListener("click", addExtra);
-  document.querySelector<HTMLButtonElement>("#publish-gist")?.addEventListener("click", async () => {
-    form.requestSubmit();
-    if (!error.hidden || !latestToml) return;
-    const gistWindow = window.open("https://gist.github.com/", "_blank", "noopener");
-    try {
-      await navigator.clipboard.writeText(latestToml);
-      publishNote.textContent = "TOML copied. Paste it into a new public Gist, name it dot-miru.toml, then create the Gist.";
-      publishNote.hidden = false;
-    } catch {
-      gistWindow?.close();
-      showError("Could not copy the TOML. Please allow clipboard access and try again.");
-    }
-  });
-  document.querySelector<HTMLButtonElement>("#submit-profile")?.addEventListener("click", async () => {
-    const japanese = document.documentElement.lang === "ja";
-    const profileName = value("name");
-    if (!profileName) return showError(japanese ? "掲載申請には表示名が必要です。" : "A display name is required before submitting a profile.");
-    const slug = window.prompt(japanese ? "プロフィール URL 用の slug を入力してください。" : "Choose a slug for the profile URL.", slugify(profileName))?.trim();
-    if (!slug) return;
-    if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug)) return showError(japanese ? "slug は小文字・数字・ハイフンだけで入力してください。" : "Use lowercase letters, numbers, and hyphens for the slug.");
-    const source = window.prompt(japanese ? "公開済みの raw TOML URL を貼り付けてください。" : "Paste the published raw TOML URL.")?.trim();
-    if (!source) return;
-    if (!isRawTomlUrl(source)) return showError(japanese ? "GitHub または Gist の raw HTTPS TOML URL を入力してください。" : "Use a GitHub or Gist raw HTTPS TOML URL.");
-    const registryEntry = `[[profile]]\nslug = ${quote(slug)}\nsource = ${quote(canonicalizeGistUrl(source))}\n`;
-    const prWindow = window.open("https://github.com/Uliboooo/dot-miru/edit/main/src/data/profiles.toml", "_blank", "noopener");
-    try {
-      await navigator.clipboard.writeText(registryEntry);
-      publishNote.textContent = japanese ? "登録用の TOML をコピーしました。開いたファイル末尾に貼り付け、Commit changes から PR を作成してください。" : "The registry entry is copied. Paste it at the end of the opened file, then use Commit changes to create a PR.";
-      publishNote.hidden = false;
-    } catch {
-      prWindow?.close();
-      showError(japanese ? "登録用 TOML をコピーできませんでした。クリップボードを許可して再試行してください。" : "Could not copy the registry entry. Please allow clipboard access and try again.");
-    }
-  });
+  document
+    .querySelector<HTMLButtonElement>("#add-dotfile")
+    ?.addEventListener("click", () => addDotfile());
+  extraEditor
+    .querySelector<HTMLButtonElement>(".add-extra")
+    ?.addEventListener("click", addExtra);
+  document
+    .querySelector<HTMLButtonElement>("#publish-gist")
+    ?.addEventListener("click", async () => {
+      form.requestSubmit();
+      if (!error.hidden || !latestToml) return;
+      const gistWindow = window.open(
+        "https://gist.github.com/",
+        "_blank",
+        "noopener",
+      );
+      try {
+        await navigator.clipboard.writeText(latestToml);
+        publishNote.textContent =
+          "TOML copied. Paste it into a new public Gist, name it dot-miru.toml, then create the Gist.";
+        publishNote.hidden = false;
+      } catch {
+        gistWindow?.close();
+        showError(
+          "Could not copy the TOML. Please allow clipboard access and try again.",
+        );
+      }
+    });
+  document
+    .querySelector<HTMLButtonElement>("#submit-profile")
+    ?.addEventListener("click", async () => {
+      const japanese = document.documentElement.lang === "ja";
+      const profileName = value("name");
+      if (!profileName)
+        return showError(
+          japanese
+            ? "掲載申請には表示名が必要です。"
+            : "A display name is required before submitting a profile.",
+        );
+      const slug = window
+        .prompt(
+          japanese
+            ? "プロフィール URL 用の slug を入力してください。"
+            : "Choose a slug for the profile URL.",
+          slugify(profileName),
+        )
+        ?.trim();
+      if (!slug) return;
+      if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug))
+        return showError(
+          japanese
+            ? "slug は小文字・数字・ハイフンだけで入力してください。"
+            : "Use lowercase letters, numbers, and hyphens for the slug.",
+        );
+      const source = window
+        .prompt(
+          japanese
+            ? "公開済みの raw TOML URL を貼り付けてください。"
+            : "Paste the published raw TOML URL.",
+        )
+        ?.trim();
+      if (!source) return;
+      if (!isRawTomlUrl(source))
+        return showError(
+          japanese
+            ? "GitHub または Gist の raw HTTPS TOML URL を入力してください。"
+            : "Use a GitHub or Gist raw HTTPS TOML URL.",
+        );
+      const registryEntry = `[[profile]]\nslug = ${quote(slug)}\nsource = ${quote(canonicalizeGistUrl(source))}\n`;
+      const prWindow = window.open(
+        "https://github.com/Uliboooo/dot-miru/edit/main/src/data/profiles.toml",
+        "_blank",
+        "noopener",
+      );
+      try {
+        await navigator.clipboard.writeText(registryEntry);
+        publishNote.textContent = japanese
+          ? "登録用の TOML をコピーしました。開いたファイル末尾に貼り付け、Commit changes から PR を作成してください。"
+          : "The registry entry is copied. Paste it at the end of the opened file, then use Commit changes to create a PR.";
+        publishNote.hidden = false;
+      } catch {
+        prWindow?.close();
+        showError(
+          japanese
+            ? "登録用 TOML をコピーできませんでした。クリップボードを許可して再試行してください。"
+            : "Could not copy the registry entry. Please allow clipboard access and try again.",
+        );
+      }
+    });
   fileInput.addEventListener("change", async () => {
     const file = fileInput.files?.[0];
     if (!file) return;
@@ -254,47 +682,153 @@ const infoFields = [
   form.addEventListener("submit", (event) => {
     event.preventDefault();
     error.hidden = true;
-    const fail = (message: string, input?: HTMLElement) => showError(message, input);
+    const fail = (message: string, input?: HTMLElement) =>
+      showError(message, input);
     const profileName = value("name");
     const repository = value("repository");
-    if (!profileName) return fail("Display name is required.", form.elements.namedItem("name") as HTMLInputElement);
-    if (repository && !isHttpsUrl(repository)) return fail("Repository must be an HTTPS URL.", form.elements.namedItem("repository") as HTMLInputElement);
+    if (!profileName)
+      return fail(
+        "Display name is required.",
+        form.elements.namedItem("name") as HTMLInputElement,
+      );
+    if (repository && !isHttpsUrl(repository))
+      return fail(
+        "Repository must be an HTTPS URL.",
+        form.elements.namedItem("repository") as HTMLInputElement,
+      );
     const lines = [`name = ${quote(profileName)}`];
     optional("summary", lines);
     if (repository) lines.push(`repository = ${quote(repository)}`);
-    const github = value("github"), x = value("x");
-    if (github || x) { lines.push("", "[sns]"); if (github) lines.push(`github = ${quote(github)}`); if (x) lines.push(`x = ${quote(x)}`); }
+    const github = value("github"),
+      x = value("x");
+    if (github || x) {
+      lines.push("", "[sns]");
+      if (github) lines.push(`github = ${quote(github)}`);
+      if (x) lines.push(`x = ${quote(x)}`);
+    }
     const infoLines: string[] = [];
-    ["os", "kernel", "shell", "wm", "de", "cursor_theme", "terminal", "cpu", "gpu", "theme"].forEach((name) => optional(name, infoLines));
+    [
+      "os",
+      "kernel",
+      "shell",
+      "wm",
+      "de",
+      "cursor_theme",
+      "terminal",
+      "cpu",
+      "gpu",
+      "theme",
+    ].forEach((name) => optional(name, infoLines));
     const logo = value("logo");
-    if (logo && !isHttpsUrl(logo)) return fail("Logo image must be an HTTPS URL.", form.elements.namedItem("logo") as HTMLInputElement);
+    if (logo && !isHttpsUrl(logo))
+      return fail(
+        "Logo image must be an HTTPS URL.",
+        form.elements.namedItem("logo") as HTMLInputElement,
+      );
     if (logo) infoLines.push(`logo = ${quote(canonicalizeGistUrl(logo))}`);
-    const fonts = list("fonts"); if (fonts.length) infoLines.push(`fonts = [${fonts.map(quote).join(", ")}]`);
-    const ram = value("ram_gb"); if (ram) infoLines.push(`ram_gb = ${Number(ram)}`);
-    for (const name of ["ssd_tb", "hdd_tb"]) { const values = list(name); if (values.length) { if (values.some((item) => !Number.isFinite(Number(item)) || Number(item) <= 0)) return fail(`${name} must contain positive numbers.`); const divisor = selected(`${name.replace("_tb", "")}_unit`) === "gb" ? 1024 : 1; infoLines.push(`${name} = [${values.map((item) => Number(item) / divisor).join(", ")}]`); } }
+    const fonts = list("fonts");
+    if (fonts.length)
+      infoLines.push(`fonts = [${fonts.map(quote).join(", ")}]`);
+    const ram = value("ram_gb");
+    if (ram) infoLines.push(`ram_gb = ${Number(ram)}`);
+    for (const name of ["ssd_tb", "hdd_tb"]) {
+      const values = list(name);
+      if (values.length) {
+        if (
+          values.some(
+            (item) => !Number.isFinite(Number(item)) || Number(item) <= 0,
+          )
+        )
+          return fail(`${name} must contain positive numbers.`);
+        const divisor =
+          selected(`${name.replace("_tb", "")}_unit`) === "gb" ? 1024 : 1;
+        infoLines.push(
+          `${name} = [${values.map((item) => Number(item) / divisor).join(", ")}]`,
+        );
+      }
+    }
     if (infoLines.length) lines.push("", "[info]", ...infoLines);
-    const extras = [...extraEditor.querySelectorAll<HTMLElement>(".repeat-row")].map((row) => [row.querySelector<HTMLInputElement>(".extra-key")!.value.trim(), row.querySelector<HTMLInputElement>(".extra-value")!.value.trim()] as const).filter(([key, item]) => key || item);
-    if (extras.length) { if (extras.some(([key, item]) => !/^[a-zA-Z0-9_-]{1,40}$/.test(key) || !item)) return fail("Additional info needs a valid key and a value."); if (new Set(extras.map(([key]) => key)).size !== extras.length) return fail("Additional info keys must be unique."); lines.push("", "[info.extra]", ...extras.map(([key, item]) => `${key} = ${quote(item)}`)); }
-    for (const card of dotfileEditors.querySelectorAll<HTMLElement>(".dotfile-editor")) {
-      const id = card.querySelector<HTMLInputElement>(".dotfile-id")!.value.trim();
-      const name = card.querySelector<HTMLInputElement>(".dotfile-name")!.value.trim();
-      const desc = card.querySelector<HTMLTextAreaElement>(".dotfile-desc")!.value.trim();
+    const extras = [...extraEditor.querySelectorAll<HTMLElement>(".repeat-row")]
+      .map(
+        (row) =>
+          [
+            row.querySelector<HTMLInputElement>(".extra-key")!.value.trim(),
+            row.querySelector<HTMLInputElement>(".extra-value")!.value.trim(),
+          ] as const,
+      )
+      .filter(([key, item]) => key || item);
+    if (extras.length) {
+      if (
+        extras.some(
+          ([key, item]) => !/^[a-zA-Z0-9_-]{1,40}$/.test(key) || !item,
+        )
+      )
+        return fail("Additional info needs a valid key and a value.");
+      if (new Set(extras.map(([key]) => key)).size !== extras.length)
+        return fail("Additional info keys must be unique.");
+      lines.push(
+        "",
+        "[info.extra]",
+        ...extras.map(([key, item]) => `${key} = ${quote(item)}`),
+      );
+    }
+    for (const card of dotfileEditors.querySelectorAll<HTMLElement>(
+      ".dotfile-editor",
+    )) {
+      const id = card
+        .querySelector<HTMLInputElement>(".dotfile-id")!
+        .value.trim();
+      const name = card
+        .querySelector<HTMLInputElement>(".dotfile-name")!
+        .value.trim();
+      const desc = card
+        .querySelector<HTMLTextAreaElement>(".dotfile-desc")!
+        .value.trim();
       const idInput = card.querySelector<HTMLInputElement>(".dotfile-id")!;
       const nameInput = card.querySelector<HTMLInputElement>(".dotfile-name")!;
-      const descInput = card.querySelector<HTMLTextAreaElement>(".dotfile-desc")!;
+      const descInput =
+        card.querySelector<HTMLTextAreaElement>(".dotfile-desc")!;
       if (!id) return fail("Every dotfile needs an ID.", idInput);
       if (!name) return fail("Every dotfile needs a name.", nameInput);
       if (!desc) return fail("Every dotfile needs a description.", descInput);
-      if (!/^[a-zA-Z0-9_-]+$/.test(id)) return fail("Each dotfile ID may contain only letters, numbers, _ and -.", idInput);
-      const images = [...card.querySelectorAll<HTMLElement>(".image-row")].map((row) => ({ url: row.querySelector<HTMLInputElement>(".image-url")!.value.trim(), alt: row.querySelector<HTMLInputElement>(".image-alt")!.value.trim() })).filter((image) => image.url || image.alt);
-      if (images.some((image) => !isHttpsUrl(image.url))) return fail("Images must use public HTTPS URLs.", card.querySelector<HTMLInputElement>(".image-url")!);
-      if (images.some((image) => !image.alt)) return fail("Every image needs alt text.", card.querySelector<HTMLInputElement>(".image-alt")!);
-      lines.push("", `[dotfiles.${id}]`, `name = ${quote(name)}`, `desc = ${quote(desc)}`);
-      if (images.length) lines.push(`images = [${images.map((image) => `{ url = ${quote(canonicalizeGistUrl(image.url))}, alt = ${quote(image.alt)} }`).join(", ")}]`);
+      if (!/^[a-zA-Z0-9_-]+$/.test(id))
+        return fail(
+          "Each dotfile ID may contain only letters, numbers, _ and -.",
+          idInput,
+        );
+      const images = [...card.querySelectorAll<HTMLElement>(".image-row")]
+        .map((row) => ({
+          url: row.querySelector<HTMLInputElement>(".image-url")!.value.trim(),
+          alt: row.querySelector<HTMLInputElement>(".image-alt")!.value.trim(),
+        }))
+        .filter((image) => image.url || image.alt);
+      if (images.some((image) => !isHttpsUrl(image.url)))
+        return fail(
+          "Images must use public HTTPS URLs.",
+          card.querySelector<HTMLInputElement>(".image-url")!,
+        );
+      if (images.some((image) => !image.alt))
+        return fail(
+          "Every image needs alt text.",
+          card.querySelector<HTMLInputElement>(".image-alt")!,
+        );
+      lines.push(
+        "",
+        `[dotfiles.${id}]`,
+        `name = ${quote(name)}`,
+        `desc = ${quote(desc)}`,
+      );
+      if (images.length)
+        lines.push(
+          `images = [${images.map((image) => `{ url = ${quote(canonicalizeGistUrl(image.url))}, alt = ${quote(image.alt)} }`).join(", ")}]`,
+        );
     }
     latestToml = `${lines.join("\n")}\n`;
     const blob = new Blob([latestToml], { type: "application/toml" });
     const download = document.createElement("a");
-    download.href = URL.createObjectURL(blob); download.download = "dot-miru.toml"; download.click(); URL.revokeObjectURL(download.href);
+    download.href = URL.createObjectURL(blob);
+    download.download = "dot-miru.toml";
+    download.click();
+    URL.revokeObjectURL(download.href);
   });
 </script>
