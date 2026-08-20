@@ -9,7 +9,10 @@
     "build": "astro check && astro build",
     "preview": "astro preview",
     "test": "vitest run",
-    "deploy": "bun run build && wrangler deploy"
+    "cf-typegen": "wrangler types",
+    "migrate:production": "wrangler d1 migrations apply dot-miru-profiles --remote",
+    "migrate:preview": "wrangler d1 migrations apply DB --remote --preview",
+    "deploy": "bun run build && bun run migrate:production && wrangler deploy"
   },
   "dependencies": {
     "@astrojs/cloudflare": "^14.1.7",

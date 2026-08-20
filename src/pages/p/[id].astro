@@ -1,0 +1,33 @@
+---
+import { env } from "cloudflare:workers";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import ProfileView from "../../components/ProfileView.astro";
+import { localeFromUrl, localizedPath } from "../../lib/i18n";
+import { getStoredProfile, StoredProfileError } from "../../lib/stored-profile";
+
+export const prerender = false;
+
+const locale = localeFromUrl(Astro.url);
+const isJapanese = locale === "ja";
+let profile;
+let error: string | undefined;
+try {
+  profile = (await getStoredProfile(env.DB, Astro.params.id ?? "")).profile;
+} catch (cause) {
+  error = cause instanceof StoredProfileError && cause.code === "not_found"
+    ? isJapanese ? "プロフィールが見つかりません。" : "Profile not found."
+    : isJapanese ? "プロフィールを開けませんでした。" : "Could not open the profile.";
+}
+---
+
+<BaseLayout title={profile ? `${profile.name} — dot-miru` : "dot-miru"}>
+  {profile ? (
+    <ProfileView profile={profile} locale={locale} />
+  ) : (
+    <section class="error" role="alert">
+      <h1>{isJapanese ? "プロフィールを開けませんでした" : "Could not open this profile"}</h1>
+      <p>{error}</p>
+      <a href={localizedPath("/", locale)}>{isJapanese ? "dot-miru に戻る" : "Back to dot-miru"}</a>
+    </section>
+  )}
+</BaseLayout>

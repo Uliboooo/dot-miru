@@ -52,7 +52,17 @@ In `[sns]`, use an account ID rather than a full URL. For example, `github = "@o
 
 ## Share a profile
 
-Publish the TOML to a GitHub repository or Gist and open it with its raw URL:
+The easiest option is the browser-based [Editor](/editor). Select **Publish profile** and dot-miru stores the validated TOML in Cloudflare D1, then returns:
+
+- a short public URL such as `/p/<id>`;
+- a private editor URL whose `#key=` fragment contains the edit key.
+
+The edit key is generated in the Worker. Only its SHA-256 digest is stored. Keep the editor URL safe: the key cannot be recovered, and it is required to update or delete the profile.
+
+Anonymous profile creation is limited to five requests per minute per client address at each Cloudflare location. Updates and deletes still require the edit key.
+
+Existing GitHub and Gist profiles remain supported. To load one directly, publish the TOML to a GitHub repository or Gist and open it with its raw URL:
+
 
 ```text
 https://dot-miru.uliboooo.workers.dev/?source=https%3A%2F%2Fraw.githubusercontent.com%2Fyou%2Fdotfiles%2Fmain%2Fdot-miru.toml
@@ -78,7 +88,27 @@ The PR should include a public HTTPS raw TOML URL. Profiles are then available a
 
 ## TOML editor
 
-Open `/editor` to create or load a local profile TOML in the browser. It supports all profile fields, additional info, dotfile sections, and public HTTPS image URLs, then downloads the result as `dot-miru.toml`.
+Open `/editor` to create, publish, update, delete, or load a local profile TOML in the browser. It supports all profile fields, additional info, dotfile sections, and public HTTPS image URLs. A local `dot-miru.toml` download remains available.
+
+## D1 setup
+
+The Worker uses separate D1 databases for production and Git preview versions. Their bindings are checked into `wrangler.jsonc`:
+
+- `dot-miru-profiles` for the active deployment from `main`;
+- `dot-miru-profiles-preview` shared by non-production branches.
+
+Apply the checked-in migrations before the corresponding deployment:
+
+```sh
+bun run migrate:production
+bun run migrate:preview
+```
+
+For local development, apply migrations to Wrangler's local D1 database:
+
+```sh
+wrangler d1 migrations apply dot-miru-profiles --local
+```
 
 ## Deploy
 
@@ -92,4 +122,19 @@ This command checks, builds, and deploys the generated Worker. The first deploym
 
 ## Continuous deployment
 
-Connect this repository in the Cloudflare Workers dashboard using Git integration. Once `main` is selected as the production branch, Cloudflare deploys each push automatically.
+Connect this repository in the Cloudflare Workers dashboard using Git integration. In **Settings → Build → Branch control**, select `main` as the production branch and enable builds for non-production branches.
+
+Use these build commands:
+
+```text
+Build command:
+bun run build
+
+Deploy command:
+bunx wrangler deploy
+
+Non-production branch deploy command:
+bunx wrangler versions upload
+```
+
+Pushes to `main` deploy the production D1 binding. Other branches use the shared preview D1 and upload a version with a preview URL without promoting it to the active deployment. Database migrations remain an explicit step (`bun run migrate:production` or `bun run migrate:preview`) so a schema change is reviewed and applied deliberately before its matching deployment.

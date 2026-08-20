@@ -76,8 +76,8 @@ if (source) {
                 </p>
                 <h2 id="guide-title">
                   {isJapanese
-                    ? "作る、共有する、掲載する。"
-                    : "Make, share, and register."}
+                    ? "作る、公開する、共有する。"
+                    : "Make, publish, and share."}
                 </h2>
               </>
             </div>
@@ -105,13 +105,13 @@ if (source) {
               <>
                 <h3>
                   {isJapanese
-                    ? "2. raw URL を共有する"
-                    : "2. Share its raw URL"}
+                    ? "2. プロフィールを公開する"
+                    : "2. Publish the profile"}
                 </h3>
                 <p>
                   {isJapanese
-                    ? "GitHub または Gist に置き、その HTTPS raw URL をここで開きます。"
-                    : "Put the file in GitHub or a Gist, then open its HTTPS raw URL here."}
+                    ? "エディターの公開ボタンで、短い公開URLと編集URLを作成します。"
+                    : "Use the Editor's publish button to create short public and editor URLs."}
                 </p>
               </>
             </article>
@@ -119,20 +119,16 @@ if (source) {
               <>
                 <h3>
                   {isJapanese
-                    ? "3. ディレクトリに載せる"
-                    : "3. Join the directory"}
+                    ? "3. 公開URLを共有する"
+                    : "3. Share the public URL"}
                 </h3>
                 <p>
                   {isJapanese
-                    ? "プロフィール一覧への raw URL 追加を含むプルリクエストを送ってください。"
-                    : "Open a pull request that adds your raw URL to the profile registry."}
+                    ? "公開URLは誰にでも共有できます。編集キーを含む編集URLは非公開にしてください。"
+                    : "Share the public URL with anyone. Keep the editor URL containing your edit key private."}
                 </p>
-                <a
-                  href="https://github.com/Uliboooo/dot-miru/edit/main/src/data/profiles.toml"
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  {isJapanese ? "PR で登録する ↗" : "Register with a PR ↗"}
+                <a href={localizedPath("/editor", locale)}>
+                  {isJapanese ? "プロフィールを作る →" : "Create a profile →"}
                 </a>
               </>
             </article>
