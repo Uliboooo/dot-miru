@@ -303,7 +303,7 @@ const infoFields = [
       <button class="primary-link" id="download-edit-key" type="button">
         {isJapanese ? "編集情報をテキストで保存" : "Download editing details"}
       </button>
-      <button class="secondary-button" id="close-edit-key-dialog" type="button">
+      <button class="secondary-button" id="close-edit-key-dialog" type="button" hidden>
         {isJapanese ? "保存したので閉じる" : "I saved it — close"}
       </button>
     </div>
@@ -407,6 +407,8 @@ const infoFields = [
   const publishedEditorUrl = document.querySelector<HTMLElement>("#published-editor-url")!;
   const publishedEditKey = document.querySelector<HTMLElement>("#published-edit-key")!;
   const copyStatus = document.querySelector<HTMLParagraphElement>("#edit-key-copy-status")!;
+  const closeEditKeyDialog = document.querySelector<HTMLButtonElement>("#close-edit-key-dialog")!;
+  let editingDetailsDownloaded = false;
   let latestToml = "";
   let submitAction: "download" | "save" = "download";
   const initialUrl = new URL(window.location.href);
@@ -670,6 +672,8 @@ const infoFields = [
     publishedEditorUrl.textContent = editorUrl;
     publishedEditKey.textContent = key;
     copyStatus.textContent = "";
+    editingDetailsDownloaded = false;
+    closeEditKeyDialog.hidden = true;
 
     document.querySelector<HTMLButtonElement>("#copy-public-url")!.onclick = (event) =>
       copyCredential(publicUrl, event.currentTarget as HTMLButtonElement);
@@ -687,14 +691,21 @@ const infoFields = [
       link.download = `dot-miru-editor-key-${id}.txt`;
       link.click();
       URL.revokeObjectURL(downloadUrl);
+      editingDetailsDownloaded = true;
+      closeEditKeyDialog.hidden = false;
       copyStatus.textContent = japanese ? "編集情報をダウンロードしました。" : "Editing details downloaded.";
+      closeEditKeyDialog.focus();
     };
     if (typeof editKeyDialog.showModal === "function") editKeyDialog.showModal();
     else editKeyDialog.setAttribute("open", "");
   }
 
-  document.querySelector<HTMLButtonElement>("#close-edit-key-dialog")!
-    .addEventListener("click", () => editKeyDialog.close());
+  closeEditKeyDialog.addEventListener("click", () => {
+    if (editingDetailsDownloaded) editKeyDialog.close();
+  });
+  editKeyDialog.addEventListener("cancel", (event) => {
+    if (!editingDetailsDownloaded) event.preventDefault();
+  });
 
   function showSavedLinks(id: string, key: string | null, updated: boolean) {
     const publicUrl = new URL(`/p/${id}${localeSuffix}`, window.location.origin).toString();
