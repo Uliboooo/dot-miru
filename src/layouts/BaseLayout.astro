@@ -41,7 +41,7 @@ const toggleHref = `${toggleUrl.pathname}${toggleUrl.search}${toggleUrl.hash}`;
       <a class="wordmark" href={localizedPath("/", locale)}>dot-miru<span aria-hidden="true">.</span></a>
       <span class="header-note">{isJapanese ? "dotfiles の置き場所" : "a place for dotfiles"}</span>
       <nav class="header-nav" aria-label={isJapanese ? "サイトナビゲーション" : "Site navigation"}>
-        <a class="header-link" href={localizedPath("/editor", locale)}>Editor</a>
+        <a class="header-link" href={localizedPath("/editor", locale)}>{isJapanese ? "dotfiles を公開" : "Publish my dotfiles"}</a>
         <a class="header-link language-link" href={toggleHref} lang={isJapanese ? "en" : "ja"}>{isJapanese ? "English" : "日本語"}</a>
       </nav>
     </header>
