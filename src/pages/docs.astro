@@ -1,0 +1,125 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { localeFromUrl, localizedPath } from "../lib/i18n";
+
+const locale = localeFromUrl(Astro.url);
+const isJapanese = locale === "ja";
+---
+
+<BaseLayout title={`${isJapanese ? "使い方" : "Documentation"} — dot-miru`}>
+  <article class="docs">
+    <header class="docs-intro">
+      <p class="eyebrow">{isJapanese ? "使い方" : "documentation"}</p>
+      <h1>{isJapanese ? "dot-miru の使い方" : "How to use dot-miru"}</h1>
+      <p>
+        {isJapanese
+          ? "dotfiles の内容を読みやすいプロフィールにして、短いURLで共有できます。公開方法は2つあります。"
+          : "Turn your dotfiles into a readable profile and share it with a short URL. There are two ways to publish."}
+      </p>
+    </header>
+
+    <nav class="docs-nav" aria-label={isJapanese ? "このページの目次" : "On this page"}>
+      <a href="#quick-start">{isJapanese ? "すぐに公開する" : "Quick start"}</a>
+      <a href="#directory">{isJapanese ? "一覧に掲載する" : "Join the directory"}</a>
+      <a href="#editing">{isJapanese ? "編集と削除" : "Edit and delete"}</a>
+      <a href="#toml">TOML</a>
+    </nav>
+
+    <section id="quick-start">
+      <p class="eyebrow">01</p>
+      <h2>{isJapanese ? "すぐに公開する" : "Publish right away"}</h2>
+      <p>
+        {isJapanese
+          ? "連絡やPRは不要です。エディターからプロフィールを作成し、サイトのデータベースへ直接公開できます。"
+          : "No contact or pull request is needed. Create a profile in the editor and publish it directly to the site database."}
+      </p>
+      <ol>
+        <li>{isJapanese ? "エディターで名前や環境、dotfiles の説明を入力します。" : "Enter your name, environment, and dotfiles in the editor."}</li>
+        <li>{isJapanese ? "「プロフィールを公開」を押します。" : "Select “Publish profile.”"}</li>
+        <li>{isJapanese ? "表示された公開URLを共有します。" : "Share the public URL that appears."}</li>
+        <li>{isJapanese ? "編集URLは安全な場所へ保存します。" : "Save the private editor URL somewhere safe."}</li>
+      </ol>
+      <a class="primary-link" href={localizedPath("/editor", locale)}>
+        {isJapanese ? "あなたの dotfiles を公開 →" : "Publish your dotfiles →"}
+      </a>
+    </section>
+
+    <section id="directory">
+      <p class="eyebrow">02</p>
+      <h2>{isJapanese ? "トップページの一覧に掲載する" : "Join the top-page directory"}</h2>
+      <p>
+        {isJapanese
+          ? "継続的にトップページへ掲載したい場合は、TOMLをGitHubまたはGistで公開し、登録を依頼します。この方法ではプロフィールが /u/あなたのslug で公開されます。"
+          : "For a permanent listing on the top page, publish the TOML on GitHub or Gist and request registration. Your profile will be available at /u/your-slug."}
+      </p>
+      <ol>
+        <li>{isJapanese ? "エディターから dot-miru.toml をダウンロードします。" : "Download dot-miru.toml from the editor."}</li>
+        <li>{isJapanese ? "GitHubリポジトリまたはGistでファイルを公開します。" : "Publish the file in a GitHub repository or Gist."}</li>
+        <li>{isJapanese ? "Raw HTTPS URLを profiles.toml に追加するPRを送ります。" : "Open a pull request adding its raw HTTPS URL to profiles.toml."}</li>
+      </ol>
+      <p class="docs-note">
+        {isJapanese
+          ? "対応する取得元は raw.githubusercontent.com と gist.githubusercontent.com です。Gistの版番号付きRaw URLは自動的に最新版を指す形式へ変換されます。"
+          : "Supported sources are raw.githubusercontent.com and gist.githubusercontent.com. Revision-pinned Gist raw URLs are normalized to follow the latest version."}
+      </p>
+      <a href="https://github.com/Uliboooo/dot-miru/edit/main/src/data/profiles.toml" target="_blank" rel="noreferrer">
+        {isJapanese ? "PRで一覧へ登録する ↗" : "Register in the directory with a PR ↗"}
+      </a>
+    </section>
+
+    <section id="editing">
+      <p class="eyebrow">03</p>
+      <h2>{isJapanese ? "編集URLをなくさない" : "Keep your editor URL safe"}</h2>
+      <p>
+        {isJapanese
+          ? "データベースへ初めて公開すると、公開URLと編集URLが作られます。編集URLの #key= 以降に含まれる編集キーは、プロフィールの更新と削除に必要です。"
+          : "The first database publish creates a public URL and a private editor URL. The edit key after #key= is required to update or delete the profile."}
+      </p>
+      <div class="warning">
+        <strong>{isJapanese ? "編集URLは非公開にしてください。" : "Keep the editor URL private."}</strong>
+        <p>
+          {isJapanese
+            ? "編集キーの再表示・再発行・復旧には対応していません。サイトにはキーそのものではなくハッシュだけが保存されます。"
+            : "The edit key cannot be shown again, reissued, or recovered. The site stores only a hash of the key."}
+        </p>
+      </div>
+      <p>
+        {isJapanese
+          ? "編集URLを開くと既存の内容がエディターへ読み込まれ、更新または削除できます。公開URLは誰に共有しても構いません。"
+          : "Open the editor URL to load, update, or delete the existing profile. The public URL is safe to share with anyone."}
+      </p>
+    </section>
+
+    <section id="toml">
+      <p class="eyebrow">04</p>
+      <h2>{isJapanese ? "TOMLと画像について" : "TOML and images"}</h2>
+      <p>
+        {isJapanese
+          ? "必須項目は名前だけです。リポジトリ、紹介、SNS、マシン情報、複数のdotfileとスクリーンショットを必要な分だけ追加できます。"
+          : "Only a name is required. Add a repository, summary, social accounts, machine details, dotfiles, and screenshots as needed."}
+      </p>
+      <ul>
+        <li>{isJapanese ? "画像には公開HTTPS URLを使用してください。" : "Use public HTTPS URLs for images."}</li>
+        <li>{isJapanese ? "GitHubとXにはURLではなくアカウントIDを入力します。" : "Enter account IDs—not full URLs—for GitHub and X."}</li>
+        <li>{isJapanese ? "データベースに保存できるTOMLは1MBまでです。" : "Database-stored TOML is limited to 1 MB."}</li>
+        <li>{isJapanese ? "同じ画像URLの内容を差し替えた場合は、?v=2 などを付けるとキャッシュを回避できます。" : "After replacing an image at the same URL, add a query such as ?v=2 to bypass caches."}</li>
+      </ul>
+    </section>
+  </article>
+</BaseLayout>
+
+<style>
+  .docs { max-width: 820px; }
+  .docs-intro { margin-bottom: 2rem; }
+  .docs-intro h1 { font-size: clamp(2.5rem, 6vw, 4.5rem); margin-bottom: 1rem; }
+  .docs-intro > p:last-child { color: var(--muted); font-size: 1.15rem; max-width: 650px; }
+  .docs-nav { border-block: 1px solid var(--line); display: flex; flex-wrap: wrap; gap: .75rem 1.5rem; padding-block: 1rem; }
+  .docs section { border-top: 1px solid var(--line); margin-top: 3.5rem; padding-top: 2rem; scroll-margin-top: 1rem; }
+  .docs section:first-of-type { border-top: 0; }
+  .docs section > p, .docs li { max-width: 70ch; }
+  .docs ol, .docs ul { display: grid; gap: .55rem; margin: 1.25rem 0 1.5rem; padding-left: 1.4rem; }
+  .docs .primary-link { display: inline-block; }
+  .docs-note { background: #f4ede3; padding: 1rem; }
+  .warning { background: #fff7ef; border-left: 3px solid var(--brown); margin: 1.25rem 0; padding: 1rem 1.2rem; }
+  .warning p { color: var(--muted); margin: .4rem 0 0; }
+</style>

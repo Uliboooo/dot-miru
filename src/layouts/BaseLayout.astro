@@ -38,7 +38,7 @@ const toggleHref = `${toggleUrl.pathname}${toggleUrl.search}${toggleUrl.hash}`;
   </head>
   <body>
     <header class="site-header">
-      <a class="wordmark" href={localizedPath("/", locale)}>dot-miru<span aria-hidden="true">.</span></a>
+      <a class="wordmark" href={localizedPath("/", locale)} lang="en">dot-miru<span aria-hidden="true">.</span></a>
       <span class="header-note">{isJapanese ? "dotfiles の置き場所" : "a place for dotfiles"}</span>
       <nav class="header-nav" aria-label={isJapanese ? "サイトナビゲーション" : "Site navigation"}>
         <a class="header-link" href={localizedPath("/editor", locale)}>{isJapanese ? "あなたの dotfiles を公開" : "Publish your dotfiles"}</a>
@@ -46,6 +46,9 @@ const toggleHref = `${toggleUrl.pathname}${toggleUrl.search}${toggleUrl.hash}`;
       </nav>
     </header>
     <main><slot /></main>
-    <footer>{isJapanese ? "TOML ファイルから作られています。" : "Built from a TOML file."}</footer>
+    <footer class="site-footer">
+      <span>{isJapanese ? "TOML ファイルから作られています。" : "Built from a TOML file."}</span>
+      <a href={localizedPath("/docs", locale)}>{isJapanese ? "使い方" : "Documentation"}</a>
+    </footer>
   </body>
 </html>
