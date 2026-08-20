@@ -245,8 +245,8 @@ if (source) {
     align-items: start;
     border-top: 1px solid var(--line);
     display: grid;
-    gap: clamp(2rem, 5vw, 4.5rem);
-    grid-template-columns: minmax(0, 1.45fr) minmax(280px, 0.75fr);
+    gap: 3rem;
+    grid-template-columns: 1fr;
     padding-top: 2rem;
   }
 
@@ -278,7 +278,7 @@ if (source) {
   }
 
   .profile-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
   }
 
   .profile-card {
