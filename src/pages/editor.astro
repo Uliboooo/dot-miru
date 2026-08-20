@@ -273,8 +273,8 @@ const infoFields = [
       </h2>
       <p>
         {isJapanese
-          ? "この編集キーは再表示・再発行できません。閉じる前に編集URLをコピーまたはダウンロードしてください。"
-          : "This edit key cannot be shown or issued again. Copy or download the editor URL before closing."}
+          ? "編集URLを知っている人は誰でもプロフィールを変更・削除できます。編集URLと編集キーは他人に送らず、共有には公開URLだけを使用してください。この編集キーは再表示・再発行できません。"
+          : "Anyone with the editor URL can change or delete the profile. Never share the editor URL or edit key; share only the public URL. This edit key cannot be shown or issued again."}
       </p>
     </div>
     <div class="edit-key-table-wrap">
@@ -286,12 +286,12 @@ const infoFields = [
             <td><button class="secondary-button" id="copy-public-url" type="button">{isJapanese ? "コピー" : "Copy"}</button></td>
           </tr>
           <tr>
-            <th scope="row">{isJapanese ? "編集URL" : "Editor URL"}</th>
+            <th scope="row">{isJapanese ? "編集URL（秘密）" : "Editor URL (secret)"}</th>
             <td><code id="published-editor-url"></code></td>
             <td><button class="secondary-button" id="copy-editor-url" type="button">{isJapanese ? "コピー" : "Copy"}</button></td>
           </tr>
           <tr>
-            <th scope="row">{isJapanese ? "編集キー" : "Edit key"}</th>
+            <th scope="row">{isJapanese ? "編集キー（秘密）" : "Edit key (secret)"}</th>
             <td><code id="published-edit-key"></code></td>
             <td><button class="secondary-button" id="copy-edit-key" type="button">{isJapanese ? "コピー" : "Copy"}</button></td>
           </tr>
@@ -679,8 +679,8 @@ const infoFields = [
       copyCredential(key, event.currentTarget as HTMLButtonElement);
     document.querySelector<HTMLButtonElement>("#download-edit-key")!.onclick = () => {
       const content = japanese
-        ? `dot-miru 編集情報\n\n公開URL: ${publicUrl}\n編集URL: ${editorUrl}\n編集キー: ${key}\n\n注意: 編集URLと編集キーは再発行できません。安全な場所に保存し、公開しないでください。\n`
-        : `dot-miru editing details\n\nPublic URL: ${publicUrl}\nEditor URL: ${editorUrl}\nEdit key: ${key}\n\nImportant: The editor URL and edit key cannot be reissued. Store them securely and do not share them.\n`;
+        ? `dot-miru 編集情報\n\n公開URL（共有用）: ${publicUrl}\n編集URL（秘密）: ${editorUrl}\n編集キー（秘密）: ${key}\n\n重要: 編集URLを知っている人は誰でもプロフィールを変更・削除できます。編集URLと編集キーは他人に送らず、共有には公開URLだけを使用してください。編集キーは再発行できません。\n`
+        : `dot-miru editing details\n\nPublic URL (share this): ${publicUrl}\nEditor URL (secret): ${editorUrl}\nEdit key (secret): ${key}\n\nImportant: Anyone with the editor URL can change or delete the profile. Never share the editor URL or edit key; share only the public URL. The edit key cannot be reissued.\n`;
       const downloadUrl = URL.createObjectURL(new Blob([content], { type: "text/plain;charset=utf-8" }));
       const link = document.createElement("a");
       link.href = downloadUrl;
@@ -701,7 +701,7 @@ const infoFields = [
     publishNote.replaceChildren(
       document.createTextNode(updated
         ? japanese ? "更新しました。 " : "Profile updated. "
-        : japanese ? "公開しました。編集URLを安全な場所に保存してください。 " : "Published. Save the editor URL somewhere safe. "),
+        : japanese ? "公開しました。共有には公開URLだけを使い、編集URLは秘密にしてください。 " : "Published. Share only the public URL and keep the editor URL secret. "),
     );
     const publicLink = document.createElement("a");
     publicLink.href = publicUrl;
