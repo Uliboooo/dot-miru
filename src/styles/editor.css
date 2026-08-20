@@ -71,6 +71,45 @@
   text-decoration: none;
 }
 
+.toml-download-action {
+  display: inline-flex;
+  position: relative;
+}
+
+.toml-download-tooltip {
+  background: var(--ink);
+  border-radius: 3px;
+  bottom: calc(100% + .65rem);
+  color: #fffaf3;
+  font-size: .8rem;
+  left: 50%;
+  line-height: 1.45;
+  max-width: min(340px, calc(100vw - 2rem));
+  opacity: 0;
+  padding: .7rem .8rem;
+  pointer-events: none;
+  position: absolute;
+  transform: translate(-50%, .3rem);
+  transition: opacity .15s, transform .15s;
+  visibility: hidden;
+  width: max-content;
+  z-index: 2;
+}
+
+.toml-download-action:hover .toml-download-tooltip,
+.toml-download-action:focus-within .toml-download-tooltip {
+  opacity: 1;
+  transform: translate(-50%, 0);
+  visibility: visible;
+}
+
+@media (max-width: 620px) {
+  .toml-download-action,
+  .toml-download-action .secondary-button {
+    width: 100%;
+  }
+}
+
 .edit-key-dialog {
   background: #fffaf3;
   border: 2px solid var(--ink);

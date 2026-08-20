@@ -247,10 +247,21 @@ const infoFields = [
     <div class="editor-actions">
       <button class="primary-link" id="save-profile" type="button"
         >{isJapanese ? "プロフィールを公開" : "Publish profile"}</button
-      ><button class="secondary-button" type="submit"
-        >{
-          isJapanese ? "dot-miru.toml をダウンロード" : "Download dot-miru.toml"
-        }</button
+      ><span class="toml-download-action"
+        ><button
+          class="secondary-button"
+          type="submit"
+          aria-describedby="toml-download-help"
+          >{
+            isJapanese ? "dot-miru.toml をダウンロード" : "Download dot-miru.toml"
+          }</button
+        ><span class="toml-download-tooltip" id="toml-download-help" role="tooltip"
+          >{
+            isJapanese
+              ? "ダウンロードしたTOMLをGitHub Gistなどで公開し、Raw URLを添えてPRすると、プロフィールをサイトの一覧に掲載できます。"
+              : "Publish the downloaded TOML on GitHub Gist or a similar host, then open a PR with its Raw URL to list your profile in the site index."
+          }</span
+        ></span
       ><button class="text-button editor-delete" id="delete-profile" type="button" hidden
         >{isJapanese ? "プロフィールを削除" : "Delete profile"}</button
       ><a href={isJapanese ? "/?lang=ja" : "/"}
