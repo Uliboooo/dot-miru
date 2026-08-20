@@ -2,7 +2,6 @@
 import BaseLayout from "../layouts/BaseLayout.astro";
 import ProfileCard from "../components/ProfileCard.astro";
 import ProfileView from "../components/ProfileView.astro";
-import SourceForm from "../components/SourceForm.astro";
 import { loadProfile, ProfileError } from "../lib/profile";
 import { registry } from "../lib/registry";
 import { localeFromUrl, localizedPath } from "../lib/i18n";
@@ -38,11 +37,10 @@ if (source) {
 ---
 
 <BaseLayout title={profile ? `${profile.name} — dot-miru` : "dot-miru"}>
-  {
-    profile ? (
-      <ProfileView profile={profile} source={source} locale={locale} />
-    ) : (
-      <>
+  {profile ? (
+    <ProfileView profile={profile} source={source} locale={locale} />
+  ) : (
+    <div class="home">
         <section class="intro">
           <p class="eyebrow">
             {isJapanese
@@ -55,8 +53,10 @@ if (source) {
               ? "dot-miru は公開 TOML ファイルを読み込み、シンプルで共有しやすいプロフィールにします。"
               : "dot-miru reads a public TOML file and turns it into a simple, shareable profile."}
           </p>
+          <a class="primary-link intro-action" href={localizedPath("/editor", locale)}>
+            {isJapanese ? "プロフィールを作る →" : "Create a profile →"}
+          </a>
         </section>
-        <SourceForm source={source} />
         {error && (
           <section class="error" role="alert">
             <h2>
@@ -67,6 +67,7 @@ if (source) {
             <p>{error}</p>
           </section>
         )}
+        <div class="home-content">
         <section class="guide" aria-labelledby="guide-title">
           <div class="section-heading">
             <div>
@@ -132,29 +133,6 @@ if (source) {
                 </a>
               </>
             </article>
-          </div>
-          <div class="format-guide">
-            <div>
-              <>
-                <p class="eyebrow">TOML format</p>
-                <p>
-                  {isJapanese
-                    ? "必要なのは名前だけです。セットアップを表す項目を必要な分だけ追加できます。"
-                    : "A profile needs only a name. Add whichever fields describe your setup."}
-                </p>
-                <a href={localizedPath("/editor", locale)}>
-                  {isJapanese ? "エディターを開く →" : "Open Editor →"}
-                </a>
-              </>
-            </div>
-            <pre>
-              <code>
-                name = "Your name" repository =
-                "https://github.com/you/dotfiles" [info] os = "NixOS" shell =
-                "fish" fonts = ["Iosevka"] [dotfiles.nvim] name = "Neovim" desc
-                = "My Neovim configuration."
-              </code>
-            </pre>
           </div>
         </section>
         <section class="directory" aria-labelledby="directory-title">
@@ -225,12 +203,88 @@ if (source) {
             </p>
           )}
         </section>
-      </>
-    )
-  }
+        </div>
+    </div>
+  )}
 </BaseLayout>
 
 <style>
+  .home {
+    display: grid;
+    gap: 2.5rem;
+  }
+
+  .intro {
+    align-items: end;
+    display: grid;
+    gap: 0 2rem;
+    grid-template-columns: minmax(0, 1fr) auto;
+    max-width: none;
+  }
+
+  .intro .eyebrow,
+  .intro h1 {
+    grid-column: 1 / -1;
+  }
+
+  .intro h1 {
+    font-size: clamp(2.5rem, 5.6vw, 4.8rem);
+    margin-bottom: 1rem;
+    max-width: 980px;
+  }
+
+  .intro > p:last-of-type {
+    margin-bottom: 0;
+  }
+
+  .intro-action {
+    white-space: nowrap;
+  }
+
+  .home-content {
+    align-items: start;
+    border-top: 1px solid var(--line);
+    display: grid;
+    gap: clamp(2rem, 5vw, 4.5rem);
+    grid-template-columns: minmax(0, 1.45fr) minmax(280px, 0.75fr);
+    padding-top: 2rem;
+  }
+
+  .home-content .guide,
+  .home-content .directory {
+    border: 0;
+    margin: 0;
+    padding: 0;
+  }
+
+  .guide-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .guide-grid article {
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: minmax(150px, 0.65fr) 1fr;
+    padding: 1rem 1.1rem;
+  }
+
+  .guide-grid h3,
+  .guide-grid p {
+    margin: 0;
+  }
+
+  .guide-grid article > a {
+    grid-column: 2;
+  }
+
+  .profile-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .profile-card {
+    min-height: 0;
+  }
+
   .directory-actions {
     align-items: center;
     display: flex;
@@ -248,6 +302,33 @@ if (source) {
   }
 
   @media (max-width: 620px) {
+    .intro {
+      align-items: start;
+      grid-template-columns: 1fr;
+    }
+
+    .intro .eyebrow,
+    .intro h1 {
+      grid-column: auto;
+    }
+
+    .intro-action {
+      margin-top: 1rem;
+      text-align: center;
+    }
+
+    .home-content {
+      grid-template-columns: 1fr;
+    }
+
+    .guide-grid article {
+      grid-template-columns: 1fr;
+    }
+
+    .guide-grid article > a {
+      grid-column: auto;
+    }
+
     .directory-actions {
       align-items: start;
       flex-direction: column;
