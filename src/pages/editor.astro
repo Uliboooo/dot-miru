@@ -33,13 +33,13 @@ const infoFields = [
       {
         isJapanese ? (
           <>
-            公開したい項目を入力して、すぐに使える <code>dot-miru.toml</code>{" "}
-            をダウンロードします。画像は公開 HTTPS URL で指定します。
+            公開したい項目を入力して、短い共有URLを作成します。編集キーは
+            ブラウザ内の編集URLにだけ保存されます。
           </>
         ) : (
           <>
-            Fill in what you want to publish, then download a ready-to-use{" "}
-            <code>dot-miru.toml</code>. Images are linked by public HTTPS URL.
+            Fill in what you want to publish, then create a short sharing URL.
+            Your edit key stays in the private editor URL.
           </>
         )
       }
@@ -245,14 +245,40 @@ const infoFields = [
 
     <p class="editor-error" id="editor-error" role="alert" hidden></p>
     <div class="editor-actions">
-      <button class="primary-link" type="submit"
-        >{
-          isJapanese ? "dot-miru.toml をダウンロード" : "Download dot-miru.toml"
-        }</button
-      ><button class="secondary-button" id="publish-gist" type="button"
-        >{isJapanese ? "Gist に公開" : "Publish via Gist"}</button
-      ><button class="secondary-button" id="submit-profile" type="button"
-        >{isJapanese ? "プロフィールを掲載申請" : "Submit profile PR"}</button
+      <button class="primary-link" id="save-profile" type="button"
+        >{isJapanese ? "プロフィールを公開" : "Publish profile"}</button
+      ><span class="toml-download-action"
+        ><button
+          class="secondary-button"
+          type="submit"
+          aria-describedby="toml-download-help"
+          >{
+            isJapanese ? "dot-miru.toml をダウンロード" : "Download dot-miru.toml"
+          }</button
+        ><span class="toml-download-tooltip" id="toml-download-help" role="tooltip"
+          >{
+            isJapanese
+              ? "ダウンロードしたTOMLをGitHub Gistなどで公開し、Raw URLを添えてPRすると、プロフィールをサイトの一覧に掲載できます。"
+              : "Publish the downloaded TOML on GitHub Gist or a similar host, then open a PR with its Raw URL to list your profile in the site index."
+          }</span
+        ></span
+      ><span class="toml-download-action" id="site-registration-action" hidden
+        ><a
+          class="primary-link"
+          href="https://github.com/Uliboooo/dot-miru/edit/main/src/data/profiles.toml"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-describedby="site-registration-help"
+          >{isJapanese ? "サイトへ登録" : "Register on the site"}</a
+        ><span class="toml-download-tooltip" id="site-registration-help" role="tooltip"
+          >{
+            isJapanese
+              ? "GitHubでprofiles.tomlを編集し、公開したTOMLのRaw URLを追加してPull Requestを作成します。"
+              : "Edit profiles.toml on GitHub, add the Raw URL of your published TOML, and create a pull request."
+          }</span
+        ></span
+      ><button class="text-button editor-delete" id="delete-profile" type="button" hidden
+        >{isJapanese ? "プロフィールを削除" : "Delete profile"}</button
       ><a href={isJapanese ? "/?lang=ja" : "/"}
         >{isJapanese ? "ディレクトリに戻る" : "Back to directory"}</a>
     </div>
@@ -264,6 +290,50 @@ const infoFields = [
     >
     </p>
   </form>
+
+  <dialog class="edit-key-dialog" id="edit-key-dialog" aria-labelledby="edit-key-dialog-title">
+    <div class="edit-key-dialog-heading">
+      <p class="eyebrow">{isJapanese ? "重要" : "important"}</p>
+      <h2 id="edit-key-dialog-title">
+        {isJapanese ? "編集情報を保存してください" : "Save your editing credentials"}
+      </h2>
+      <p>
+        {isJapanese
+          ? "編集URLを知っている人は誰でもプロフィールを変更・削除できます。編集URLと編集キーは他人に送らず、共有には公開URLだけを使用してください。この編集キーは再表示・再発行できません。"
+          : "Anyone with the editor URL can change or delete the profile. Never share the editor URL or edit key; share only the public URL. This edit key cannot be shown or issued again."}
+      </p>
+    </div>
+    <div class="edit-key-table-wrap">
+      <table class="edit-key-table">
+        <tbody>
+          <tr>
+            <th scope="row">{isJapanese ? "公開URL" : "Public URL"}</th>
+            <td><code id="published-public-url"></code></td>
+            <td><button class="secondary-button" id="copy-public-url" type="button">{isJapanese ? "コピー" : "Copy"}</button></td>
+          </tr>
+          <tr>
+            <th scope="row">{isJapanese ? "編集URL（秘密）" : "Editor URL (secret)"}</th>
+            <td><code id="published-editor-url"></code></td>
+            <td><button class="secondary-button" id="copy-editor-url" type="button">{isJapanese ? "コピー" : "Copy"}</button></td>
+          </tr>
+          <tr>
+            <th scope="row">{isJapanese ? "編集キー（秘密）" : "Edit key (secret)"}</th>
+            <td><code id="published-edit-key"></code></td>
+            <td><button class="secondary-button" id="copy-edit-key" type="button">{isJapanese ? "コピー" : "Copy"}</button></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="edit-key-copy-status" id="edit-key-copy-status" role="status"></p>
+    <div class="edit-key-dialog-actions">
+      <button class="primary-link" id="download-edit-key" type="button">
+        {isJapanese ? "編集情報をテキストで保存" : "Download editing details"}
+      </button>
+      <button class="secondary-button" id="close-edit-key-dialog" type="button" hidden>
+        {isJapanese ? "保存したので閉じる" : "I saved it — close"}
+      </button>
+    </div>
+  </dialog>
 </BaseLayout>
 
 <template id="dotfile-template">
@@ -356,7 +426,26 @@ const infoFields = [
   const publishNote = document.querySelector<HTMLParagraphElement>(
     "#editor-publish-note",
   )!;
+  const saveButton = document.querySelector<HTMLButtonElement>("#save-profile")!;
+  const deleteButton = document.querySelector<HTMLButtonElement>("#delete-profile")!;
+  const siteRegistrationAction = document.querySelector<HTMLElement>("#site-registration-action")!;
+  const editKeyDialog = document.querySelector<HTMLDialogElement>("#edit-key-dialog")!;
+  const publishedPublicUrl = document.querySelector<HTMLElement>("#published-public-url")!;
+  const publishedEditorUrl = document.querySelector<HTMLElement>("#published-editor-url")!;
+  const publishedEditKey = document.querySelector<HTMLElement>("#published-edit-key")!;
+  const copyStatus = document.querySelector<HTMLParagraphElement>("#edit-key-copy-status")!;
+  const closeEditKeyDialog = document.querySelector<HTMLButtonElement>("#close-edit-key-dialog")!;
+  let editingDetailsDownloaded = false;
   let latestToml = "";
+  let submitAction: "download" | "save" = "download";
+  const initialUrl = new URL(window.location.href);
+  const requestedProfileId = initialUrl.searchParams.get("id");
+  const fragment = new URLSearchParams(initialUrl.hash.slice(1));
+  let storedProfileId = requestedProfileId && /^[A-Za-z0-9_-]{22}$/.test(requestedProfileId)
+    ? requestedProfileId
+    : null;
+  let editKey = fragment.get("key");
+  if (!editKey || !/^[A-Za-z0-9_-]{43}$/.test(editKey)) editKey = null;
 
   const quote = (value: string) => JSON.stringify(value);
   const value = (name: string) =>
@@ -372,25 +461,15 @@ const infoFields = [
       .split(",")
       .map((item) => item.trim())
       .filter(Boolean);
-  const selected = (name: string) =>
-    (form.elements.namedItem(name) as HTMLSelectElement).value;
+  const selectField = (name: string) => {
+    const field = form.elements.namedItem(name);
+    if (!(field instanceof HTMLSelectElement)) throw new Error(`Missing select: ${name}`);
+    return field;
+  };
+  const selected = (name: string) => selectField(name).value;
   const isHttpsUrl = (item: string) => {
     try {
       return new URL(item).protocol === "https:";
-    } catch {
-      return false;
-    }
-  };
-  const isRawTomlUrl = (item: string) => {
-    try {
-      const url = new URL(item);
-      return (
-        url.protocol === "https:" &&
-        ["raw.githubusercontent.com", "gist.githubusercontent.com"].includes(
-          url.hostname,
-        ) &&
-        url.pathname.endsWith(".toml")
-      );
     } catch {
       return false;
     }
@@ -409,12 +488,6 @@ const infoFields = [
     }
     return url.toString();
   };
-  const slugify = (item: string) =>
-    item
-      .toLowerCase()
-      .trim()
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/^-+|-+$/g, "") || "your-name";
   const showError = (message: string, input?: HTMLElement) => {
     error.textContent = message;
     error.hidden = false;
@@ -437,7 +510,7 @@ const infoFields = [
     attachRowRemoval(row);
     row.querySelector<HTMLInputElement>(".image-url")!.value = image.url;
     row.querySelector<HTMLInputElement>(".image-alt")!.value = image.alt;
-    container.append(fragment);
+    container.appendChild(fragment);
   }
 
   function addDotfile(dotfile?: {
@@ -463,7 +536,7 @@ const infoFields = [
         dotfile.desc;
       dotfile.images.forEach((image) => addImage(rows, image));
     } else addImage(rows);
-    dotfileEditors.append(fragment);
+    dotfileEditors.appendChild(fragment);
   }
 
   function addExtra() {
@@ -471,7 +544,7 @@ const infoFields = [
     if (rows.children.length >= 10) return;
     const fragment = clone(extraTemplate);
     attachRowRemoval(fragment.firstElementChild as HTMLElement);
-    rows.append(fragment);
+    rows.appendChild(fragment);
   }
 
   const object = (input: unknown): Record<string, unknown> =>
@@ -538,9 +611,8 @@ const infoFields = [
     setValue("ram_gb", numberText(info.ram_gb));
     for (const name of ["ssd_tb", "hdd_tb"]) {
       const values = textList(info[name]).map(Number);
-      const unit = form.elements.namedItem(
-        `${name.replace("_tb", "")}_unit`,
-      ) as HTMLSelectElement;
+      const unitName = `${name.replace("_tb", "")}_unit`;
+      const unit = selectField(unitName);
       const useGb = values.length > 0 && values.every((item) => item < 1);
       unit.value = useGb ? "gb" : "tb";
       setValue(
@@ -588,89 +660,10 @@ const infoFields = [
   extraEditor
     .querySelector<HTMLButtonElement>(".add-extra")
     ?.addEventListener("click", addExtra);
-  document
-    .querySelector<HTMLButtonElement>("#publish-gist")
-    ?.addEventListener("click", async () => {
-      form.requestSubmit();
-      if (!error.hidden || !latestToml) return;
-      const gistWindow = window.open(
-        "https://gist.github.com/",
-        "_blank",
-        "noopener",
-      );
-      try {
-        await navigator.clipboard.writeText(latestToml);
-        publishNote.textContent =
-          "TOML copied. Paste it into a new public Gist, name it dot-miru.toml, then create the Gist.";
-        publishNote.hidden = false;
-      } catch {
-        gistWindow?.close();
-        showError(
-          "Could not copy the TOML. Please allow clipboard access and try again.",
-        );
-      }
-    });
-  document
-    .querySelector<HTMLButtonElement>("#submit-profile")
-    ?.addEventListener("click", async () => {
-      const japanese = document.documentElement.lang === "ja";
-      const profileName = value("name");
-      if (!profileName)
-        return showError(
-          japanese
-            ? "掲載申請には表示名が必要です。"
-            : "A display name is required before submitting a profile.",
-        );
-      const slug = window
-        .prompt(
-          japanese
-            ? "プロフィール URL 用の slug を入力してください。"
-            : "Choose a slug for the profile URL.",
-          slugify(profileName),
-        )
-        ?.trim();
-      if (!slug) return;
-      if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug))
-        return showError(
-          japanese
-            ? "slug は小文字・数字・ハイフンだけで入力してください。"
-            : "Use lowercase letters, numbers, and hyphens for the slug.",
-        );
-      const source = window
-        .prompt(
-          japanese
-            ? "公開済みの raw TOML URL を貼り付けてください。"
-            : "Paste the published raw TOML URL.",
-        )
-        ?.trim();
-      if (!source) return;
-      if (!isRawTomlUrl(source))
-        return showError(
-          japanese
-            ? "GitHub または Gist の raw HTTPS TOML URL を入力してください。"
-            : "Use a GitHub or Gist raw HTTPS TOML URL.",
-        );
-      const registryEntry = `[[profile]]\nslug = ${quote(slug)}\nsource = ${quote(canonicalizeGistUrl(source))}\n`;
-      const prWindow = window.open(
-        "https://github.com/Uliboooo/dot-miru/edit/main/src/data/profiles.toml",
-        "_blank",
-        "noopener",
-      );
-      try {
-        await navigator.clipboard.writeText(registryEntry);
-        publishNote.textContent = japanese
-          ? "登録用の TOML をコピーしました。開いたファイル末尾に貼り付け、Commit changes から PR を作成してください。"
-          : "The registry entry is copied. Paste it at the end of the opened file, then use Commit changes to create a PR.";
-        publishNote.hidden = false;
-      } catch {
-        prWindow?.close();
-        showError(
-          japanese
-            ? "登録用 TOML をコピーできませんでした。クリップボードを許可して再試行してください。"
-            : "Could not copy the registry entry. Please allow clipboard access and try again.",
-        );
-      }
-    });
+  saveButton.addEventListener("click", () => {
+    submitAction = "save";
+    form.requestSubmit();
+  });
   fileInput.addEventListener("change", async () => {
     const file = fileInput.files?.[0];
     if (!file) return;
@@ -679,8 +672,184 @@ const infoFields = [
   });
   addDotfile();
 
-  form.addEventListener("submit", (event) => {
+  const japanese = document.documentElement.lang === "ja";
+  const localeSuffix = japanese ? "?lang=ja" : "";
+
+  async function copyCredential(value: string, button: HTMLButtonElement) {
+    try {
+      await navigator.clipboard.writeText(value);
+      const original = button.textContent;
+      button.textContent = japanese ? "コピー済み" : "Copied";
+      copyStatus.textContent = japanese ? "クリップボードにコピーしました。" : "Copied to the clipboard.";
+      window.setTimeout(() => { button.textContent = original; }, 1500);
+    } catch {
+      copyStatus.textContent = japanese
+        ? "コピーできませんでした。表示された内容を手動でコピーしてください。"
+        : "Could not copy. Please copy the displayed value manually.";
+    }
+  }
+
+  function showEditKeyDialog(id: string, key: string) {
+    const publicUrl = new URL(`/p/${id}${localeSuffix}`, window.location.origin).toString();
+    const editorUrl = new URL(
+      `/editor?id=${encodeURIComponent(id)}${japanese ? "&lang=ja" : ""}#key=${key}`,
+      window.location.origin,
+    ).toString();
+    publishedPublicUrl.textContent = publicUrl;
+    publishedEditorUrl.textContent = editorUrl;
+    publishedEditKey.textContent = key;
+    copyStatus.textContent = "";
+    editingDetailsDownloaded = false;
+    closeEditKeyDialog.hidden = true;
+
+    document.querySelector<HTMLButtonElement>("#copy-public-url")!.onclick = (event) =>
+      copyCredential(publicUrl, event.currentTarget as HTMLButtonElement);
+    document.querySelector<HTMLButtonElement>("#copy-editor-url")!.onclick = (event) =>
+      copyCredential(editorUrl, event.currentTarget as HTMLButtonElement);
+    document.querySelector<HTMLButtonElement>("#copy-edit-key")!.onclick = (event) =>
+      copyCredential(key, event.currentTarget as HTMLButtonElement);
+    document.querySelector<HTMLButtonElement>("#download-edit-key")!.onclick = () => {
+      const content = japanese
+        ? `dot-miru 編集情報\n\n公開URL（共有用）: ${publicUrl}\n編集URL（秘密）: ${editorUrl}\n編集キー（秘密）: ${key}\n\n重要: 編集URLを知っている人は誰でもプロフィールを変更・削除できます。編集URLと編集キーは他人に送らず、共有には公開URLだけを使用してください。編集キーは再発行できません。\n`
+        : `dot-miru editing details\n\nPublic URL (share this): ${publicUrl}\nEditor URL (secret): ${editorUrl}\nEdit key (secret): ${key}\n\nImportant: Anyone with the editor URL can change or delete the profile. Never share the editor URL or edit key; share only the public URL. The edit key cannot be reissued.\n`;
+      const downloadUrl = URL.createObjectURL(new Blob([content], { type: "text/plain;charset=utf-8" }));
+      const link = document.createElement("a");
+      link.href = downloadUrl;
+      link.download = `dot-miru-editor-key-${id}.txt`;
+      link.click();
+      URL.revokeObjectURL(downloadUrl);
+      editingDetailsDownloaded = true;
+      closeEditKeyDialog.hidden = false;
+      copyStatus.textContent = japanese ? "編集情報をダウンロードしました。" : "Editing details downloaded.";
+      closeEditKeyDialog.focus();
+    };
+    if (typeof editKeyDialog.showModal === "function") editKeyDialog.showModal();
+    else editKeyDialog.setAttribute("open", "");
+  }
+
+  closeEditKeyDialog.addEventListener("click", () => {
+    if (editingDetailsDownloaded) editKeyDialog.close();
+  });
+  editKeyDialog.addEventListener("cancel", (event) => {
+    if (!editingDetailsDownloaded) event.preventDefault();
+  });
+
+  function showSavedLinks(id: string, key: string | null, updated: boolean) {
+    const publicUrl = new URL(`/p/${id}${localeSuffix}`, window.location.origin).toString();
+    const message = document.createElement("span");
+    message.textContent = updated
+      ? japanese ? "更新しました。" : "Profile updated."
+      : japanese ? "公開しました。共有には公開URLだけを使い、編集URLは秘密にしてください。" : "Published. Share only the public URL and keep the editor URL secret.";
+    publishNote.replaceChildren(message);
+    const publicLink = document.createElement("a");
+    publicLink.href = publicUrl;
+    publicLink.textContent = japanese ? "公開ページを開く" : "Open public profile";
+    publicLink.className = "primary-link";
+    publicLink.target = "_blank";
+    publicLink.rel = "noopener noreferrer";
+    publishNote.appendChild(publicLink);
+    if (key) {
+      const editorLink = document.createElement("a");
+      editorLink.href = `/editor?id=${encodeURIComponent(id)}${japanese ? "&lang=ja" : ""}#key=${key}`;
+      editorLink.textContent = japanese ? "編集URL" : "Editor URL";
+      editorLink.className = "secondary-button";
+      publishNote.appendChild(editorLink);
+    }
+    publishNote.hidden = false;
+  }
+
+  async function saveProfile() {
+    saveButton.disabled = true;
+    try {
+      const updating = Boolean(storedProfileId && editKey);
+      const response = await fetch(
+        updating ? `/api/profiles/${storedProfileId}` : "/api/profiles",
+        {
+          method: updating ? "PUT" : "POST",
+          headers: {
+            "Content-Type": "application/json",
+            ...(updating ? { Authorization: `Bearer ${editKey}` } : {}),
+          },
+          body: JSON.stringify({ toml: latestToml }),
+        },
+      );
+      const result: unknown = await response.json();
+      const body = object(result);
+      if (!response.ok) throw new Error(text(body.error) || "Unable to save the profile.");
+      const id = text(body.id);
+      if (!id) throw new Error("The server returned an invalid profile ID.");
+      if (!updating) {
+        const key = text(body.editKey);
+        if (!key) throw new Error("The server returned an invalid edit key.");
+        storedProfileId = id;
+        editKey = key;
+        const editorUrl = `/editor?id=${encodeURIComponent(id)}${japanese ? "&lang=ja" : ""}#key=${key}`;
+        history.replaceState(null, "", editorUrl);
+        showEditKeyDialog(id, key);
+      }
+      deleteButton.hidden = false;
+      saveButton.textContent = japanese ? "変更を保存" : "Save changes";
+      showSavedLinks(id, editKey, updating);
+    } catch (cause) {
+      showError(cause instanceof Error ? cause.message : "Unable to save the profile.");
+    } finally {
+      saveButton.disabled = false;
+    }
+  }
+
+  deleteButton.addEventListener("click", async () => {
+    if (!storedProfileId || !editKey) return;
+    const confirmed = window.confirm(japanese
+      ? "このプロフィールを完全に削除しますか？"
+      : "Permanently delete this profile?");
+    if (!confirmed) return;
+    deleteButton.disabled = true;
+    try {
+      const response = await fetch(`/api/profiles/${storedProfileId}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${editKey}` },
+      });
+      if (!response.ok) {
+        const result: unknown = await response.json();
+        throw new Error(text(object(result).error) || "Unable to delete the profile.");
+      }
+      window.location.assign(japanese ? "/?lang=ja" : "/");
+    } catch (cause) {
+      deleteButton.disabled = false;
+      showError(cause instanceof Error ? cause.message : "Unable to delete the profile.");
+    }
+  });
+
+  if (storedProfileId) {
+    fetch(`/api/profiles/${storedProfileId}`)
+      .then(async (response) => {
+        const result: unknown = await response.json();
+        const body = object(result);
+        if (!response.ok) throw new Error(text(body.error) || "Unable to load the profile.");
+        const toml = text(body.toml);
+        if (!toml) throw new Error("The stored profile is empty.");
+        loadToml(toml);
+        if (editKey) {
+          deleteButton.hidden = false;
+          saveButton.textContent = japanese ? "変更を保存" : "Save changes";
+          showSavedLinks(storedProfileId!, editKey, true);
+        } else {
+          storedProfileId = null;
+          publishNote.textContent = japanese
+            ? "閲覧用コピーを読み込みました。公開すると新しいプロフィールになります。"
+            : "Loaded a read-only copy. Publishing will create a new profile.";
+          publishNote.hidden = false;
+        }
+      })
+      .catch((cause: unknown) => showError(
+        cause instanceof Error ? cause.message : "Unable to load the profile.",
+      ));
+  }
+
+  form.addEventListener("submit", async (event) => {
     event.preventDefault();
+    const action = submitAction;
+    submitAction = "download";
     error.hidden = true;
     const fail = (message: string, input?: HTMLElement) =>
       showError(message, input);
@@ -824,11 +993,16 @@ const infoFields = [
         );
     }
     latestToml = `${lines.join("\n")}\n`;
+    if (action === "save") {
+      await saveProfile();
+      return;
+    }
     const blob = new Blob([latestToml], { type: "application/toml" });
     const download = document.createElement("a");
     download.href = URL.createObjectURL(blob);
     download.download = "dot-miru.toml";
     download.click();
     URL.revokeObjectURL(download.href);
+    siteRegistrationAction.hidden = false;
   });
 </script>

@@ -2,7 +2,6 @@
 import BaseLayout from "../layouts/BaseLayout.astro";
 import ProfileCard from "../components/ProfileCard.astro";
 import ProfileView from "../components/ProfileView.astro";
-import SourceForm from "../components/SourceForm.astro";
 import { loadProfile, ProfileError } from "../lib/profile";
 import { registry } from "../lib/registry";
 import { localeFromUrl, localizedPath } from "../lib/i18n";
@@ -38,25 +37,26 @@ if (source) {
 ---
 
 <BaseLayout title={profile ? `${profile.name} — dot-miru` : "dot-miru"}>
-  {
-    profile ? (
-      <ProfileView profile={profile} source={source} locale={locale} />
-    ) : (
-      <>
+  {profile ? (
+    <ProfileView profile={profile} source={source} locale={locale} />
+  ) : (
+    <div class="home">
         <section class="intro">
           <p class="eyebrow">
             {isJapanese
               ? "dotfiles を、見やすく"
               : "dotfiles, clearly presented"}
           </p>
-          <h1>A place for the tools that make your computer yours.</h1>
+          <h1 lang="en">A place for the tools that make your computer yours.</h1>
           <p>
             {isJapanese
               ? "dot-miru は公開 TOML ファイルを読み込み、シンプルで共有しやすいプロフィールにします。"
               : "dot-miru reads a public TOML file and turns it into a simple, shareable profile."}
           </p>
+          <a class="primary-link intro-action" href={localizedPath("/editor", locale)}>
+            {isJapanese ? "プロフィールを作る →" : "Create a profile →"}
+          </a>
         </section>
-        <SourceForm source={source} />
         {error && (
           <section class="error" role="alert">
             <h2>
@@ -67,6 +67,7 @@ if (source) {
             <p>{error}</p>
           </section>
         )}
+        <div class="home-content">
         <section class="guide" aria-labelledby="guide-title">
           <div class="section-heading">
             <div>
@@ -76,8 +77,8 @@ if (source) {
                 </p>
                 <h2 id="guide-title">
                   {isJapanese
-                    ? "作る、共有する、掲載する。"
-                    : "Make, share, and register."}
+                    ? "作る、公開する、共有する。"
+                    : "Make, publish, and share."}
                 </h2>
               </>
             </div>
@@ -105,13 +106,13 @@ if (source) {
               <>
                 <h3>
                   {isJapanese
-                    ? "2. raw URL を共有する"
-                    : "2. Share its raw URL"}
+                    ? "2. プロフィールを公開する"
+                    : "2. Publish the profile"}
                 </h3>
                 <p>
                   {isJapanese
-                    ? "GitHub または Gist に置き、その HTTPS raw URL をここで開きます。"
-                    : "Put the file in GitHub or a Gist, then open its HTTPS raw URL here."}
+                    ? "エディターの公開ボタンで、短い公開URLと編集URLを作成します。"
+                    : "Use the Editor's publish button to create short public and editor URLs."}
                 </p>
               </>
             </article>
@@ -119,46 +120,19 @@ if (source) {
               <>
                 <h3>
                   {isJapanese
-                    ? "3. ディレクトリに載せる"
-                    : "3. Join the directory"}
+                    ? "3. 公開URLを共有する"
+                    : "3. Share the public URL"}
                 </h3>
                 <p>
                   {isJapanese
-                    ? "プロフィール一覧への raw URL 追加を含むプルリクエストを送ってください。"
-                    : "Open a pull request that adds your raw URL to the profile registry."}
+                    ? "公開URLは誰にでも共有できます。編集キーを含む編集URLは非公開にしてください。"
+                    : "Share the public URL with anyone. Keep the editor URL containing your edit key private."}
                 </p>
-                <a
-                  href="https://github.com/Uliboooo/dot-miru/edit/main/src/data/profiles.toml"
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  {isJapanese ? "PR で登録する ↗" : "Register with a PR ↗"}
+                <a href={localizedPath("/editor", locale)}>
+                  {isJapanese ? "プロフィールを作る →" : "Create a profile →"}
                 </a>
               </>
             </article>
-          </div>
-          <div class="format-guide">
-            <div>
-              <>
-                <p class="eyebrow">TOML format</p>
-                <p>
-                  {isJapanese
-                    ? "必要なのは名前だけです。セットアップを表す項目を必要な分だけ追加できます。"
-                    : "A profile needs only a name. Add whichever fields describe your setup."}
-                </p>
-                <a href={localizedPath("/editor", locale)}>
-                  {isJapanese ? "エディターを開く →" : "Open Editor →"}
-                </a>
-              </>
-            </div>
-            <pre>
-              <code>
-                name = "Your name" repository =
-                "https://github.com/you/dotfiles" [info] os = "NixOS" shell =
-                "fish" fonts = ["Iosevka"] [dotfiles.nvim] name = "Neovim" desc
-                = "My Neovim configuration."
-              </code>
-            </pre>
           </div>
         </section>
         <section class="directory" aria-labelledby="directory-title">
@@ -229,12 +203,89 @@ if (source) {
             </p>
           )}
         </section>
-      </>
-    )
-  }
+        </div>
+    </div>
+  )}
 </BaseLayout>
 
 <style>
+  .home {
+    display: grid;
+    gap: 2rem;
+  }
+
+  .intro {
+    align-items: end;
+    display: grid;
+    gap: 0 2rem;
+    grid-template-columns: minmax(0, 1fr) auto;
+    max-width: none;
+  }
+
+  .intro .eyebrow,
+  .intro h1 {
+    grid-column: 1 / -1;
+  }
+
+  .intro h1 {
+    font-size: clamp(2.35rem, 4.8vw, 4rem);
+    line-height: 1;
+    margin-bottom: 0.75rem;
+    max-width: 900px;
+  }
+
+  .intro > p:last-of-type {
+    margin-bottom: 0;
+  }
+
+  .intro-action {
+    white-space: nowrap;
+  }
+
+  .home-content {
+    align-items: start;
+    border-top: 1px solid var(--line);
+    display: grid;
+    gap: 3rem;
+    grid-template-columns: 1fr;
+    padding-top: 2rem;
+  }
+
+  .home-content .guide,
+  .home-content .directory {
+    border: 0;
+    margin: 0;
+    padding: 0;
+  }
+
+  .guide-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .guide-grid article {
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: minmax(150px, 0.65fr) 1fr;
+    padding: 1rem 1.1rem;
+  }
+
+  .guide-grid h3,
+  .guide-grid p {
+    margin: 0;
+  }
+
+  .guide-grid article > a {
+    grid-column: 2;
+  }
+
+  .profile-grid {
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  }
+
+  .profile-card {
+    min-height: 0;
+  }
+
   .directory-actions {
     align-items: center;
     display: flex;
@@ -252,6 +303,33 @@ if (source) {
   }
 
   @media (max-width: 620px) {
+    .intro {
+      align-items: start;
+      grid-template-columns: 1fr;
+    }
+
+    .intro .eyebrow,
+    .intro h1 {
+      grid-column: auto;
+    }
+
+    .intro-action {
+      margin-top: 1rem;
+      text-align: center;
+    }
+
+    .home-content {
+      grid-template-columns: 1fr;
+    }
+
+    .guide-grid article {
+      grid-template-columns: 1fr;
+    }
+
+    .guide-grid article > a {
+      grid-column: auto;
+    }
+
     .directory-actions {
       align-items: start;
       flex-direction: column;

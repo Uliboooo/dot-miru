@@ -290,7 +290,7 @@ const socialLinks = [
 
   xButton?.addEventListener("click", () => {
     const name = xButton.dataset.profileName ?? "dot-miru";
-    const text = `${name} — dot-miru\n${window.location.href}`;
+    const text = `${name} — dot-miru\n${window.location.href}\n#dot_miru`;
     window.open(`https://x.com/intent/post?text=${encodeURIComponent(text)}`, "_blank", "noopener,noreferrer");
   });
 
