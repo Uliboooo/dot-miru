@@ -92,10 +92,12 @@ Open `/editor` to create, publish, update, delete, or load a local profile TOML 
 
 ## D1 setup
 
-The Worker uses separate D1 databases for production and Git preview versions. Their bindings are checked into `wrangler.jsonc`:
+The app uses separate Workers and D1 databases for production and preview deployments. Their bindings are checked into `wrangler.jsonc`:
 
-- `dot-miru-profiles` for the active deployment from `main`;
-- `dot-miru-profiles-preview` shared by non-production branches.
+- `dot-miru` with `dot-miru-profiles` for the active deployment from `main`;
+- `dot-miru-preview` with `dot-miru-profiles-preview` for non-production branches.
+
+The separate Wrangler environment is intentional: a Worker version preview otherwise retains the production Worker's bindings. Do not upload non-production branches without `--env preview`.
 
 Apply the checked-in migrations before the corresponding deployment:
 
@@ -120,6 +122,12 @@ bun run deploy
 
 This command checks, builds, and deploys the generated Worker. The first deployment creates the Worker named in `wrangler.jsonc`. Configure a custom domain afterwards in the Worker settings in the Cloudflare dashboard.
 
+Deploy the isolated preview Worker manually with:
+
+```sh
+bun run deploy:preview
+```
+
 ## Continuous deployment
 
 Connect this repository in the Cloudflare Workers dashboard using Git integration. In **Settings → Build → Branch control**, select `main` as the production branch and enable builds for non-production branches.
@@ -134,7 +142,9 @@ Deploy command:
 bunx wrangler deploy
 
 Non-production branch deploy command:
-bunx wrangler versions upload
+bun run build:preview && bun run migrate:preview && bunx wrangler versions upload --env preview
 ```
 
-Pushes to `main` deploy the production D1 binding. Other branches use the shared preview D1 and upload a version with a preview URL without promoting it to the active deployment. Database migrations remain an explicit step (`bun run migrate:production` or `bun run migrate:preview`) so a schema change is reviewed and applied deliberately before its matching deployment.
+Pushes to `main` deploy the production Worker and D1 binding. Other branches upload versions of the separate `dot-miru-preview` Worker and use the shared preview D1.
+
+Disable automatic deployments on the old Cloudflare Pages project. This repository produces an Astro Worker, so `*.pages.dev` deployment links from that project are not valid application previews. Use the `*.workers.dev` URL emitted by the Workers build instead.

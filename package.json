@@ -7,12 +7,14 @@
   "scripts": {
     "dev": "astro dev",
     "build": "astro check && astro build",
+    "build:preview": "astro check && CLOUDFLARE_ENV=preview astro build",
     "preview": "astro preview",
     "test": "vitest run",
     "cf-typegen": "wrangler types",
     "migrate:production": "wrangler d1 migrations apply dot-miru-profiles --remote",
-    "migrate:preview": "wrangler d1 migrations apply DB --remote --preview",
-    "deploy": "bun run build && bun run migrate:production && wrangler deploy"
+    "migrate:preview": "wrangler d1 migrations apply DB --remote --env preview",
+    "deploy": "bun run build && bun run migrate:production && wrangler deploy",
+    "deploy:preview": "bun run build:preview && bun run migrate:preview && wrangler deploy --env preview"
   },
   "dependencies": {
     "@astrojs/cloudflare": "^14.1.7",

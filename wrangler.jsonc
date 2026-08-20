@@ -9,7 +9,6 @@
       "binding": "DB",
       "database_name": "dot-miru-profiles",
       "database_id": "343f774a-0eb1-4ff3-a356-8bf7df2f7fe9",
-      "preview_database_id": "22b71690-faf9-49cb-90b0-14b972299fc2",
       "migrations_dir": "migrations"
     }
   ],
@@ -20,25 +19,28 @@
       "simple": { "limit": 5, "period": 60 }
     }
   ],
-  "previews": {
-    "d1_databases": [
-      {
-        "binding": "DB",
-        "database_name": "dot-miru-profiles-preview",
-        "database_id": "22b71690-faf9-49cb-90b0-14b972299fc2",
-        "migrations_dir": "migrations"
-      }
-    ],
-    "ratelimits": [
-      {
-        "name": "PROFILE_CREATE_RATE_LIMITER",
-        "namespace_id": "1002",
-        "simple": { "limit": 5, "period": 60 }
-      }
-    ]
-  },
   "observability": {
     "enabled": true,
     "logs": { "head_sampling_rate": 1 }
+  },
+  "env": {
+    "preview": {
+      "name": "dot-miru-preview",
+      "d1_databases": [
+        {
+          "binding": "DB",
+          "database_name": "dot-miru-profiles-preview",
+          "database_id": "22b71690-faf9-49cb-90b0-14b972299fc2",
+          "migrations_dir": "migrations"
+        }
+      ],
+      "ratelimits": [
+        {
+          "name": "PROFILE_CREATE_RATE_LIMITER",
+          "namespace_id": "1002",
+          "simple": { "limit": 5, "period": 60 }
+        }
+      ]
+    }
   }
 }
