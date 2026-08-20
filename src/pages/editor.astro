@@ -264,6 +264,50 @@ const infoFields = [
     >
     </p>
   </form>
+
+  <dialog class="edit-key-dialog" id="edit-key-dialog" aria-labelledby="edit-key-dialog-title">
+    <div class="edit-key-dialog-heading">
+      <p class="eyebrow">{isJapanese ? "重要" : "important"}</p>
+      <h2 id="edit-key-dialog-title">
+        {isJapanese ? "編集情報を保存してください" : "Save your editing credentials"}
+      </h2>
+      <p>
+        {isJapanese
+          ? "この編集キーは再表示・再発行できません。閉じる前に編集URLをコピーまたはダウンロードしてください。"
+          : "This edit key cannot be shown or issued again. Copy or download the editor URL before closing."}
+      </p>
+    </div>
+    <div class="edit-key-table-wrap">
+      <table class="edit-key-table">
+        <tbody>
+          <tr>
+            <th scope="row">{isJapanese ? "公開URL" : "Public URL"}</th>
+            <td><code id="published-public-url"></code></td>
+            <td><button class="secondary-button" id="copy-public-url" type="button">{isJapanese ? "コピー" : "Copy"}</button></td>
+          </tr>
+          <tr>
+            <th scope="row">{isJapanese ? "編集URL" : "Editor URL"}</th>
+            <td><code id="published-editor-url"></code></td>
+            <td><button class="secondary-button" id="copy-editor-url" type="button">{isJapanese ? "コピー" : "Copy"}</button></td>
+          </tr>
+          <tr>
+            <th scope="row">{isJapanese ? "編集キー" : "Edit key"}</th>
+            <td><code id="published-edit-key"></code></td>
+            <td><button class="secondary-button" id="copy-edit-key" type="button">{isJapanese ? "コピー" : "Copy"}</button></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="edit-key-copy-status" id="edit-key-copy-status" role="status"></p>
+    <div class="edit-key-dialog-actions">
+      <button class="primary-link" id="download-edit-key" type="button">
+        {isJapanese ? "編集情報をテキストで保存" : "Download editing details"}
+      </button>
+      <button class="secondary-button" id="close-edit-key-dialog" type="button">
+        {isJapanese ? "保存したので閉じる" : "I saved it — close"}
+      </button>
+    </div>
+  </dialog>
 </BaseLayout>
 
 <template id="dotfile-template">
@@ -358,6 +402,11 @@ const infoFields = [
   )!;
   const saveButton = document.querySelector<HTMLButtonElement>("#save-profile")!;
   const deleteButton = document.querySelector<HTMLButtonElement>("#delete-profile")!;
+  const editKeyDialog = document.querySelector<HTMLDialogElement>("#edit-key-dialog")!;
+  const publishedPublicUrl = document.querySelector<HTMLElement>("#published-public-url")!;
+  const publishedEditorUrl = document.querySelector<HTMLElement>("#published-editor-url")!;
+  const publishedEditKey = document.querySelector<HTMLElement>("#published-edit-key")!;
+  const copyStatus = document.querySelector<HTMLParagraphElement>("#edit-key-copy-status")!;
   let latestToml = "";
   let submitAction: "download" | "save" = "download";
   const initialUrl = new URL(window.location.href);
@@ -597,6 +646,56 @@ const infoFields = [
   const japanese = document.documentElement.lang === "ja";
   const localeSuffix = japanese ? "?lang=ja" : "";
 
+  async function copyCredential(value: string, button: HTMLButtonElement) {
+    try {
+      await navigator.clipboard.writeText(value);
+      const original = button.textContent;
+      button.textContent = japanese ? "コピー済み" : "Copied";
+      copyStatus.textContent = japanese ? "クリップボードにコピーしました。" : "Copied to the clipboard.";
+      window.setTimeout(() => { button.textContent = original; }, 1500);
+    } catch {
+      copyStatus.textContent = japanese
+        ? "コピーできませんでした。表示された内容を手動でコピーしてください。"
+        : "Could not copy. Please copy the displayed value manually.";
+    }
+  }
+
+  function showEditKeyDialog(id: string, key: string) {
+    const publicUrl = new URL(`/p/${id}${localeSuffix}`, window.location.origin).toString();
+    const editorUrl = new URL(
+      `/editor?id=${encodeURIComponent(id)}${japanese ? "&lang=ja" : ""}#key=${key}`,
+      window.location.origin,
+    ).toString();
+    publishedPublicUrl.textContent = publicUrl;
+    publishedEditorUrl.textContent = editorUrl;
+    publishedEditKey.textContent = key;
+    copyStatus.textContent = "";
+
+    document.querySelector<HTMLButtonElement>("#copy-public-url")!.onclick = (event) =>
+      copyCredential(publicUrl, event.currentTarget as HTMLButtonElement);
+    document.querySelector<HTMLButtonElement>("#copy-editor-url")!.onclick = (event) =>
+      copyCredential(editorUrl, event.currentTarget as HTMLButtonElement);
+    document.querySelector<HTMLButtonElement>("#copy-edit-key")!.onclick = (event) =>
+      copyCredential(key, event.currentTarget as HTMLButtonElement);
+    document.querySelector<HTMLButtonElement>("#download-edit-key")!.onclick = () => {
+      const content = japanese
+        ? `dot-miru 編集情報\n\n公開URL: ${publicUrl}\n編集URL: ${editorUrl}\n編集キー: ${key}\n\n注意: 編集URLと編集キーは再発行できません。安全な場所に保存し、公開しないでください。\n`
+        : `dot-miru editing details\n\nPublic URL: ${publicUrl}\nEditor URL: ${editorUrl}\nEdit key: ${key}\n\nImportant: The editor URL and edit key cannot be reissued. Store them securely and do not share them.\n`;
+      const downloadUrl = URL.createObjectURL(new Blob([content], { type: "text/plain;charset=utf-8" }));
+      const link = document.createElement("a");
+      link.href = downloadUrl;
+      link.download = `dot-miru-editor-key-${id}.txt`;
+      link.click();
+      URL.revokeObjectURL(downloadUrl);
+      copyStatus.textContent = japanese ? "編集情報をダウンロードしました。" : "Editing details downloaded.";
+    };
+    if (typeof editKeyDialog.showModal === "function") editKeyDialog.showModal();
+    else editKeyDialog.setAttribute("open", "");
+  }
+
+  document.querySelector<HTMLButtonElement>("#close-edit-key-dialog")!
+    .addEventListener("click", () => editKeyDialog.close());
+
   function showSavedLinks(id: string, key: string | null, updated: boolean) {
     const publicUrl = new URL(`/p/${id}${localeSuffix}`, window.location.origin).toString();
     publishNote.replaceChildren(
@@ -646,6 +745,7 @@ const infoFields = [
         editKey = key;
         const editorUrl = `/editor?id=${encodeURIComponent(id)}${japanese ? "&lang=ja" : ""}#key=${key}`;
         history.replaceState(null, "", editorUrl);
+        showEditKeyDialog(id, key);
       }
       deleteButton.hidden = false;
       saveButton.textContent = japanese ? "変更を保存" : "Save changes";

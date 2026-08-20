@@ -57,3 +57,86 @@
   font-size: .9rem;
   margin: .85rem 0 0;
 }
+
+.edit-key-dialog {
+  background: #fffaf3;
+  border: 2px solid var(--ink);
+  border-radius: 4px;
+  box-shadow: 10px 10px 0 rgb(58 39 27 / 20%);
+  color: var(--ink);
+  max-height: calc(100vh - 2rem);
+  max-width: min(760px, calc(100vw - 2rem));
+  padding: clamp(1.25rem, 4vw, 2.25rem);
+}
+
+.edit-key-dialog::backdrop {
+  background: rgb(43 30 22 / 72%);
+  backdrop-filter: blur(2px);
+}
+
+.edit-key-dialog-heading h2 {
+  font-size: clamp(1.6rem, 4vw, 2.4rem);
+  margin: .25rem 0 .65rem;
+}
+
+.edit-key-dialog-heading p:last-child {
+  color: #7a2e20;
+  font-weight: 700;
+  max-width: 62ch;
+}
+
+.edit-key-table-wrap {
+  margin-top: 1.25rem;
+  overflow-x: auto;
+}
+
+.edit-key-table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+.edit-key-table th,
+.edit-key-table td {
+  border: 1px solid var(--line);
+  padding: .75rem;
+  text-align: left;
+  vertical-align: middle;
+}
+
+.edit-key-table th {
+  background: #ead8c5;
+  white-space: nowrap;
+}
+
+.edit-key-table code {
+  overflow-wrap: anywhere;
+  user-select: all;
+}
+
+.edit-key-table .secondary-button {
+  white-space: nowrap;
+}
+
+.edit-key-copy-status {
+  color: var(--muted);
+  min-height: 1.5em;
+}
+
+.edit-key-dialog-actions {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: .75rem;
+}
+
+@media (max-width: 620px) {
+  .edit-key-table tr,
+  .edit-key-table th,
+  .edit-key-table td {
+    display: block;
+  }
+
+  .edit-key-table tr + tr {
+    margin-top: .75rem;
+  }
+}
