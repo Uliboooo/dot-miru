@@ -698,21 +698,21 @@ const infoFields = [
 
   function showSavedLinks(id: string, key: string | null, updated: boolean) {
     const publicUrl = new URL(`/p/${id}${localeSuffix}`, window.location.origin).toString();
-    publishNote.replaceChildren(
-      document.createTextNode(updated
-        ? japanese ? "更新しました。 " : "Profile updated. "
-        : japanese ? "公開しました。共有には公開URLだけを使い、編集URLは秘密にしてください。 " : "Published. Share only the public URL and keep the editor URL secret. "),
-    );
+    const message = document.createElement("span");
+    message.textContent = updated
+      ? japanese ? "更新しました。" : "Profile updated."
+      : japanese ? "公開しました。共有には公開URLだけを使い、編集URLは秘密にしてください。" : "Published. Share only the public URL and keep the editor URL secret.";
+    publishNote.replaceChildren(message);
     const publicLink = document.createElement("a");
     publicLink.href = publicUrl;
     publicLink.textContent = japanese ? "公開ページを開く" : "Open public profile";
+    publicLink.className = "primary-link";
     publishNote.appendChild(publicLink);
     if (key) {
-      const separator = document.createTextNode(" · ");
       const editorLink = document.createElement("a");
       editorLink.href = `/editor?id=${encodeURIComponent(id)}${japanese ? "&lang=ja" : ""}#key=${key}`;
       editorLink.textContent = japanese ? "編集URL" : "Editor URL";
-      publishNote.appendChild(separator);
+      editorLink.className = "secondary-button";
       publishNote.appendChild(editorLink);
     }
     publishNote.hidden = false;

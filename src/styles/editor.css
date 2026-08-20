@@ -53,9 +53,22 @@
 }
 
 .editor-publish-note {
+  align-items: center;
   color: var(--muted);
+  display: flex;
+  flex-wrap: wrap;
   font-size: .9rem;
+  gap: .75rem;
   margin: .85rem 0 0;
+}
+
+.editor-publish-note > span {
+  flex-basis: 100%;
+}
+
+.editor-publish-note a {
+  display: inline-block;
+  text-decoration: none;
 }
 
 .edit-key-dialog {
