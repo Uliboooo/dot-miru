@@ -262,6 +262,21 @@ const infoFields = [
               : "Publish the downloaded TOML on GitHub Gist or a similar host, then open a PR with its Raw URL to list your profile in the site index."
           }</span
         ></span
+      ><span class="toml-download-action" id="site-registration-action" hidden
+        ><a
+          class="primary-link"
+          href="https://github.com/Uliboooo/dot-miru/edit/main/src/data/profiles.toml"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-describedby="site-registration-help"
+          >{isJapanese ? "サイトへ登録" : "Register on the site"}</a
+        ><span class="toml-download-tooltip" id="site-registration-help" role="tooltip"
+          >{
+            isJapanese
+              ? "GitHubでprofiles.tomlを編集し、公開したTOMLのRaw URLを追加してPull Requestを作成します。"
+              : "Edit profiles.toml on GitHub, add the Raw URL of your published TOML, and create a pull request."
+          }</span
+        ></span
       ><button class="text-button editor-delete" id="delete-profile" type="button" hidden
         >{isJapanese ? "プロフィールを削除" : "Delete profile"}</button
       ><a href={isJapanese ? "/?lang=ja" : "/"}
@@ -413,6 +428,7 @@ const infoFields = [
   )!;
   const saveButton = document.querySelector<HTMLButtonElement>("#save-profile")!;
   const deleteButton = document.querySelector<HTMLButtonElement>("#delete-profile")!;
+  const siteRegistrationAction = document.querySelector<HTMLElement>("#site-registration-action")!;
   const editKeyDialog = document.querySelector<HTMLDialogElement>("#edit-key-dialog")!;
   const publishedPublicUrl = document.querySelector<HTMLElement>("#published-public-url")!;
   const publishedEditorUrl = document.querySelector<HTMLElement>("#published-editor-url")!;
@@ -729,6 +745,8 @@ const infoFields = [
     publicLink.href = publicUrl;
     publicLink.textContent = japanese ? "公開ページを開く" : "Open public profile";
     publicLink.className = "primary-link";
+    publicLink.target = "_blank";
+    publicLink.rel = "noopener noreferrer";
     publishNote.appendChild(publicLink);
     if (key) {
       const editorLink = document.createElement("a");
@@ -985,5 +1003,6 @@ const infoFields = [
     download.download = "dot-miru.toml";
     download.click();
     URL.revokeObjectURL(download.href);
+    siteRegistrationAction.hidden = false;
   });
 </script>

@@ -76,6 +76,14 @@
   position: relative;
 }
 
+.toml-download-action[hidden] {
+  display: none;
+}
+
+.toml-download-action > a {
+  display: inline-block;
+}
+
 .toml-download-tooltip {
   background: var(--ink);
   border-radius: 3px;
